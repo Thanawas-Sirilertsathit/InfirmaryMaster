@@ -37,7 +37,46 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # DRF
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
+
+    # Service apps
+    'users',
+    'patients',
+    'medicines',
+    'inventory',
+    'prescriptions',
+    'reports',
 ]
+
+AUTH_USER_MODEL = 'users.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Infirmary Master API',
+    'DESCRIPTION': 'A service-based architecture for users, patients, medicines, inventory, prescriptions, and reports.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
+
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@infirmary.local')
+NOTIFICATION_EMAIL = config('NOTIFICATION_EMAIL', default='admin@infirmary.local')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -49,7 +88,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'infirmary_backend.urls'
+ROOT_URLCONF = 'infirmary.urls'
 
 TEMPLATES = [
     {
@@ -67,7 +106,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'infirmary_backend.wsgi.application'
+WSGI_APPLICATION = 'infirmary.wsgi.application'
 
 
 # Database

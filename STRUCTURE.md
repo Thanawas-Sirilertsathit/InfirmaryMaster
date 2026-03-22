@@ -14,6 +14,9 @@ Doctor/Nurse prescribes the medicine -> PrescriptionItem created -> Inventory de
 - Contain role and permission
 - User authentication
 - 3 roles: Patient, Staff and Admin
+- Patient can only view his own prescriptions.
+- Staff: can do all stuffs except managing users.
+- Admin: verify staff registration.
 
 ## Patients Service
 - Storing patient records and link them to user accounts
