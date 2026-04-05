@@ -1,7 +1,7 @@
 from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
 from .serializers import UserSerializer, UserCreateSerializer, LoginSerializer
@@ -63,3 +63,26 @@ class UserUpdateView(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdmin]
+
+
+class StaffListView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        staff_users = User.objects.filter(is_staff=True)
+        serializer = UserSerializer(staff_users, many=True)
+        return Response(serializer.data)
+
+
+class VerifyStaffView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        user_id = request.data.get('id')
+        try:
+            user = User.objects.get(id=user_id)
+            user.is_staff = True
+            user.save()
+            return Response({'message': 'User verified as staff successfully.'})
+        except User.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=404)
