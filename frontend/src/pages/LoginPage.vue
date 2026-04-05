@@ -4,7 +4,10 @@
 			<h1 class="text-4xl font-bold text-primary">Login</h1>
 			<p class="text-secondary mt-4">Access your account to continue.</p>
 		</header>
-		<form class="max-w-lg mx-auto mt-10 bg-white p-6 rounded shadow">
+		<form
+			class="max-w-lg mx-auto mt-10 bg-white p-6 rounded shadow"
+			@submit.prevent="loginUser"
+		>
 			<div class="form-control mb-4">
 				<label class="label">
 					<span class="label-text">Email or Username</span>
@@ -27,9 +30,10 @@
 					v-model="password"
 				/>
 			</div>
-			<button class="btn btn-primary w-full" @click="loginUser">
-				Login
-			</button>
+			<p v-if="errorMessage" class="text-red-500 text-sm mb-4">
+				{{ errorMessage }}
+			</p>
+			<button class="btn btn-primary w-full">Login</button>
 		</form>
 	</div>
 </template>
@@ -43,10 +47,12 @@ export default {
 		return {
 			emailOrUsername: '',
 			password: '',
+			errorMessage: '', // Add error message state
 		};
 	},
 	methods: {
 		async loginUser() {
+			this.errorMessage = ''; // Reset error message
 			try {
 				const response = await axios.post(
 					'http://localhost:8000/api/auth/login/',
@@ -59,6 +65,9 @@ export default {
 				// Handle successful login (e.g., redirect, store token)
 			} catch (error) {
 				console.error('Login failed:', error);
+				this.errorMessage =
+					error.response?.data?.error ||
+					'Login failed. Please try again.'; // Display error message
 			}
 		},
 	},

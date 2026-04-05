@@ -22,7 +22,7 @@ class RegisterView(generics.CreateAPIView):
             'user': UserSerializer(user).data,
             'refresh': str(refresh),
             'access': str(refresh.access_token),
-            'message': 'User registered successfully'
+            'message': 'User registered successfully as a {}.'.format(user.role)
         }, status=status.HTTP_201_CREATED)
 
 
