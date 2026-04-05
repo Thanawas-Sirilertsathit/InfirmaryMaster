@@ -16,6 +16,8 @@ class Medicine(models.Model):
     description = models.TextField(blank=True)
     minimum_stock = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
+    image = models.URLField(blank=True, null=True)
+    side_effects = models.TextField(blank=True, null=True)
 
     class Meta:
         unique_together = ('name', 'dosage')

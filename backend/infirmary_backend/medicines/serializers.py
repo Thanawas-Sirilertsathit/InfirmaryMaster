@@ -10,8 +10,10 @@ class MedicineCategorySerializer(serializers.ModelSerializer):
 
 class MedicineSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
+    image = serializers.URLField(required=False, allow_null=True)
+    side_effects = serializers.CharField(required=False, allow_null=True)
 
     class Meta:
         model = Medicine
-        fields = ['id', 'category', 'category_name', 'name', 'dosage', 'description', 'minimum_stock', 'created_at']
+        fields = ['id', 'category', 'category_name', 'name', 'dosage', 'description', 'minimum_stock', 'created_at', 'image', 'side_effects']
         read_only_fields = ['id', 'created_at']
