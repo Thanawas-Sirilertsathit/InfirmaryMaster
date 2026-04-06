@@ -63,6 +63,15 @@ export default {
 				);
 				console.log('Login successful:', response.data);
 
+				// Extract and store the access token in localStorage
+				const accessToken = response.data.access;
+				if (accessToken) {
+					localStorage.setItem('authToken', accessToken);
+					console.log('Access token stored in localStorage');
+				} else {
+					throw new Error('Access token is missing in the response.');
+				}
+
 				// Extract user role from response
 				const userRole = response.data.user.role;
 

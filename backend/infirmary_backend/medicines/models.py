@@ -10,7 +10,7 @@ class MedicineCategory(models.Model):
 
 
 class Medicine(models.Model):
-    category = models.ForeignKey(MedicineCategory, on_delete=models.PROTECT, related_name='medicines')
+    category = models.CharField(max_length=128)  # Changed to CharField
     name = models.CharField(max_length=128)
     dosage = models.CharField(max_length=64)
     description = models.TextField(blank=True)

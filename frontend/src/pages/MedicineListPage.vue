@@ -6,78 +6,165 @@
 				Browse through the available medicines.
 			</p>
 		</header>
-		<div class="form-control mb-6 max-w-md mx-auto">
-			<input
-				type="text"
-				placeholder="Search medicines..."
-				class="input input-bordered"
-			/>
+		<div v-if="loading" class="text-center py-10">
+			<p>Loading medicines...</p>
 		</div>
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
-			<div
-				v-for="medicine in medicines"
-				:key="medicine.id"
-				class="card bg-base-100 shadow-md"
-			>
-				<figure>
-					<img :src="medicine.image" alt="Medicine Image" />
-				</figure>
-				<div class="card-body">
-					<h2 class="card-title">{{ medicine.name }}</h2>
-					<p>{{ medicine.description }}</p>
-					<div class="card-actions justify-end">
-						<router-link
-							:to="`/medicine/${medicine.id}`"
-							class="btn btn-primary"
-							>Details</router-link
-						>
+		<div v-else-if="error" class="text-center py-10 text-red-500">
+			<p>{{ error }}</p>
+		</div>
+		<div v-else>
+			<div class="form-control mb-6 max-w-md mx-auto">
+				<input
+					type="text"
+					placeholder="Search medicines..."
+					class="input input-bordered"
+				/>
+			</div>
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
+				<div
+					v-for="medicine in medicines"
+					:key="medicine.id"
+					class="card bg-base-100 shadow-md"
+				>
+					<figure>
+						<img :src="medicine.image" alt="Medicine Image" />
+					</figure>
+					<div class="card-body">
+						<h2 class="card-title">{{ medicine.name }}</h2>
+						<p>{{ medicine.description }}</p>
+						<div class="card-actions justify-end">
+							<router-link
+								:to="`/medicine/${medicine.id}`"
+								class="btn btn-primary"
+								>Details</router-link
+							>
+						</div>
 					</div>
+				</div>
+
+				<!-- Add Medicine Modal Trigger -->
+				<div
+					class="card bg-base-100 shadow-md flex items-center justify-center"
+				>
+					<button
+						class="btn btn-primary"
+						@click="showAddModal = true"
+					>
+						Add New Medicine
+					</button>
 				</div>
 			</div>
 
-			<!-- Add Medicine Modal Trigger -->
-			<div
-				class="card bg-base-100 shadow-md flex items-center justify-center"
-			>
-				<button class="btn btn-primary" @click="showAddModal = true">
-					Add New Medicine
-				</button>
-			</div>
+			<AddMedicineModal
+				:isOpen="showAddModal"
+				@add-medicine="addMedicine"
+				@close="showAddModal = false"
+			/>
 		</div>
-
-		<AddMedicineModal
-			:isOpen="showAddModal"
-			@add-medicine="addMedicine"
-			@close="showAddModal = false"
-		/>
 	</div>
 </template>
 
 <script>
 import axios from 'axios';
 import AddMedicineModal from '@/components/modals/AddMedicineModal.vue';
+import { ref, onMounted } from 'vue';
 
 export default {
 	name: 'MedicineListPage',
 	components: {
 		AddMedicineModal,
 	},
-	data() {
-		return {
-			medicines: [],
-			showAddModal: false,
+	setup() {
+		const medicines = ref([]);
+		const loading = ref(true);
+		const error = ref(null);
+		const showAddModal = ref(false);
+
+		const fetchMedicines = async () => {
+			loading.value = true;
+			error.value = null;
+			medicines.value = []; // Clear the medicines array before fetching new data
+			console.log('Fetching medicines...'); // Debugging log
+			try {
+				const token = localStorage.getItem('authToken'); // Retrieve the token from localStorage
+				if (!token) {
+					throw new Error(
+						'Authentication token is missing. Please log in.',
+					);
+				}
+				const response = await axios.get(
+					'http://localhost:8000/api/medicines/list/?page=1',
+					{
+						headers: {
+							Accept: 'application/json',
+							Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+						},
+					},
+				); // Updated to match Swagger example
+				console.log('API response:', response.data); // Debugging log
+				if (Array.isArray(response.data.results)) {
+					medicines.value = response.data.results.map((medicine) => ({
+						id: medicine.id,
+						name: medicine.name,
+						description: medicine.description,
+						category: medicine.category_name,
+						dosage: medicine.dosage,
+						minimum_stock: medicine.minimum_stock,
+						image:
+							medicine.image || 'https://via.placeholder.com/150',
+						side_effects:
+							medicine.side_effects || 'No side effects listed.',
+					}));
+					console.log('Mapped medicines:', medicines.value); // Debugging log
+				} else {
+					error.value = 'Invalid data received from the server.';
+					console.error('Invalid data format:', response.data); // Debugging log
+				}
+			} catch (err) {
+				error.value =
+					'Failed to load medicines. Please try again later.';
+				console.error('API call failed:', err); // Debugging log
+			} finally {
+				loading.value = false;
+			}
 		};
-	},
-	methods: {
-		addMedicine(newMedicine) {
+
+		const addMedicine = async (newMedicine) => {
 			console.log('Adding new medicine:', newMedicine);
-			this.medicines.push({
-				id: this.medicines.length + 1,
-				...newMedicine,
-				image: 'https://via.placeholder.com/150',
-			});
-			this.showAddModal = false;
-		},
+			try {
+				const token = localStorage.getItem('authToken'); // Retrieve the token from localStorage
+				if (!token) {
+					throw new Error(
+						'Authentication token is missing. Please log in.',
+					);
+				}
+				await axios.post(
+					'http://localhost:8000/api/medicines/', // Added trailing slash to match Django's APPEND_SLASH behavior
+					newMedicine,
+					{
+						headers: {
+							Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+						},
+					},
+				);
+				await fetchMedicines();
+			} catch (err) {
+				error.value = 'Failed to add medicine. Please try again later.';
+				console.error(err);
+			}
+			showAddModal.value = false;
+		};
+
+		onMounted(fetchMedicines);
+
+		return {
+			medicines,
+			loading,
+			error,
+			showAddModal,
+			fetchMedicines,
+			addMedicine,
+		};
 	},
 };
 </script>

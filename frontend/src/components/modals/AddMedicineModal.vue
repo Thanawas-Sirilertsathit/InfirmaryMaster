@@ -30,13 +30,64 @@
 					<label class="label">
 						<span class="label-text">Category</span>
 					</label>
-					<input
+					<select
 						v-model="category"
+						class="select select-bordered"
+						required
+					>
+						<option value="">Select category</option>
+						<option value="powder">Powder</option>
+						<option value="liquid">Liquid</option>
+						<option value="pill">Pill</option>
+						<option value="capsule">Capsule</option>
+					</select>
+				</div>
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text">Dosage</span>
+					</label>
+					<input
+						v-model="dosage"
 						type="text"
-						placeholder="Enter category"
+						placeholder="Enter dosage"
 						class="input input-bordered"
 						required
 					/>
+				</div>
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text">Minimum Stock</span>
+					</label>
+					<input
+						v-model="minimumStock"
+						type="number"
+						placeholder="Enter minimum stock"
+						class="input input-bordered"
+						required
+					/>
+				</div>
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text">Image URL</span>
+					</label>
+					<input
+						v-model="image"
+						type="url"
+						placeholder="Enter image URL"
+						class="input input-bordered"
+						required
+					/>
+				</div>
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text">Side Effects</span>
+					</label>
+					<textarea
+						v-model="sideEffects"
+						placeholder="Enter side effects"
+						class="textarea textarea-bordered"
+						required
+					></textarea>
 				</div>
 				<div class="modal-action">
 					<button type="submit" class="btn btn-primary">Add</button>
@@ -62,14 +113,26 @@ export default {
 			medicineName: '',
 			description: '',
 			category: '',
+			dosage: '',
+			minimumStock: '',
+			image: '',
+			sideEffects: '',
 		};
 	},
 	methods: {
 		submitForm() {
+			if (!this.category || typeof this.category !== 'string') {
+				alert('Please select a valid category.');
+				return;
+			}
 			const newMedicine = {
 				name: this.medicineName,
 				description: this.description,
 				category: this.category,
+				dosage: this.dosage,
+				minimum_stock: this.minimumStock,
+				image: this.image,
+				side_effects: this.sideEffects,
 			};
 			this.$emit('add-medicine', newMedicine);
 			this.closeModal();
