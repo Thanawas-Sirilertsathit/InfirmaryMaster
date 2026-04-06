@@ -115,12 +115,19 @@ export default {
 						role: this.role,
 					},
 				);
-				alert('Registration successful!');
 				console.log('Registration successful:', response.data);
-				// Handle successful registration (e.g., redirect, show success message)
+
+				// Navigate based on selected role
+				if (this.role === 'staff') {
+					this.$router.push('/inventory');
+				} else if (this.role === 'patient') {
+					this.$router.push('/prescriptions');
+				} else {
+					this.$router.push('/'); // Default fallback
+				}
 			} catch (error) {
-				alert('Registration failed. Please try again.');
 				console.error('Registration failed:', error);
+				alert('Registration failed. Please try again.');
 			}
 		},
 	},

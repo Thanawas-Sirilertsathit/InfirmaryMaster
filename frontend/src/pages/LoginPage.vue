@@ -62,7 +62,20 @@ export default {
 					},
 				);
 				console.log('Login successful:', response.data);
-				// Handle successful login (e.g., redirect, store token)
+
+				// Extract user role from response
+				const userRole = response.data.user.role;
+
+				// Navigate based on role
+				if (userRole === 'admin') {
+					this.$router.push('/staff');
+				} else if (userRole === 'staff') {
+					this.$router.push('/inventory');
+				} else if (userRole === 'patient') {
+					this.$router.push('/prescriptions');
+				} else {
+					this.$router.push('/'); // Default fallback
+				}
 			} catch (error) {
 				console.error('Login failed:', error);
 				this.errorMessage =
