@@ -5,10 +5,19 @@
 			<form @submit.prevent="submitForm">
 				<div class="form-control">
 					<label class="label">Medicine Name</label>
-					<input
+					<select
 						v-model="newBatch.name"
-						class="input input-bordered"
-					/>
+						class="select select-bordered"
+					>
+						<option disabled value="">Select a medicine</option>
+						<option
+							v-for="medicine in medicineList"
+							:key="medicine.id"
+							:value="medicine.name"
+						>
+							{{ medicine.name }}
+						</option>
+					</select>
 				</div>
 				<div class="form-control">
 					<label class="label">Amount</label>
@@ -42,6 +51,10 @@ export default {
 			type: Boolean,
 			required: true,
 		},
+		medicineList: {
+			type: Array,
+			required: true,
+		},
 	},
 	data() {
 		return {
@@ -54,6 +67,10 @@ export default {
 	},
 	methods: {
 		submitForm() {
+			if (!this.newBatch.name) {
+				alert('Please select a medicine.');
+				return;
+			}
 			this.$emit('add-batch', this.newBatch);
 			this.closeModal();
 		},

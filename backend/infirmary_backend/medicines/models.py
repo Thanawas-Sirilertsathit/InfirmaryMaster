@@ -12,7 +12,7 @@ class MedicineCategory(models.Model):
 class Medicine(models.Model):
     category = models.CharField(max_length=128)  # Changed to CharField
     name = models.CharField(max_length=128)
-    dosage = models.CharField(max_length=64)
+    dosage = models.CharField(max_length=128)
     description = models.TextField(blank=True)
     minimum_stock = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)

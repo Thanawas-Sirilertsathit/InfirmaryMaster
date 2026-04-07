@@ -1,14 +1,20 @@
 from django.db import models
 from django.utils import timezone
 from medicines.models import Medicine
+import uuid
 
 
 class MedicineBatch(models.Model):
     medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE, related_name='batches')
-    batch_number = models.CharField(max_length=64, unique=True)
+    batch_number = models.CharField(max_length=64, unique=True, blank=True)
     quantity = models.PositiveIntegerField(default=0)
     expiration_date = models.DateField()
     added_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.batch_number:
+            self.batch_number = str(uuid.uuid4())[:8]  # Generate a unique 8-character batch number
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.medicine} [{self.batch_number}]"

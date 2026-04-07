@@ -6,10 +6,11 @@ from medicines.models import Medicine
 class MedicineBatchSerializer(serializers.ModelSerializer):
     medicine_name = serializers.CharField(source='medicine.name', read_only=True)
     medicine_dosage = serializers.CharField(source='medicine.dosage', read_only=True)
+    medicine_image = serializers.URLField(source='medicine.image', read_only=True, allow_null=True)
 
     class Meta:
         model = MedicineBatch
-        fields = ['id', 'medicine', 'medicine_name', 'medicine_dosage', 'batch_number', 'quantity', 'expiration_date', 'added_at']
+        fields = ['id', 'medicine', 'medicine_name', 'medicine_dosage', 'medicine_image', 'batch_number', 'quantity', 'expiration_date', 'added_at']
         read_only_fields = ['id', 'added_at']
 
 
