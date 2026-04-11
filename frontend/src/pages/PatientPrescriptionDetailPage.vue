@@ -10,19 +10,22 @@
 				Back to Prescriptions
 			</button>
 
-			<div v-if="loading" class="bg-white p-6 rounded shadow text-center">
+			<div
+				v-if="loading"
+				class="detail-card bg-white p-6 rounded shadow text-center"
+			>
 				<p>Loading prescription details...</p>
 			</div>
 
 			<div
 				v-else-if="error"
-				class="bg-white p-6 rounded shadow text-center text-red-500"
+				class="detail-card bg-white p-6 rounded shadow text-center text-red-500"
 			>
 				<p>{{ error }}</p>
 			</div>
 
 			<div v-else-if="prescription" class="space-y-6">
-				<div class="bg-white p-6 rounded shadow">
+				<div class="detail-card bg-white p-6 rounded shadow">
 					<div
 						class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between"
 					>
@@ -49,7 +52,9 @@
 				</div>
 
 				<div class="grid gap-6 md:grid-cols-2">
-					<div class="bg-white p-6 rounded shadow space-y-4">
+					<div
+						class="detail-card bg-white p-6 rounded shadow space-y-4"
+					>
 						<h3 class="text-xl font-bold">Prescription Summary</h3>
 						<div>
 							<p class="text-sm text-gray-500">Patient</p>
@@ -71,7 +76,7 @@
 						</div>
 					</div>
 
-					<div class="bg-white p-6 rounded shadow">
+					<div class="detail-card bg-white p-6 rounded shadow">
 						<h3 class="text-xl font-bold mb-4">Clinical Notes</h3>
 						<p class="text-gray-700 whitespace-pre-line">
 							{{
@@ -82,7 +87,7 @@
 					</div>
 				</div>
 
-				<div class="bg-white p-6 rounded shadow">
+				<div class="detail-card bg-white p-6 rounded shadow">
 					<div
 						class="flex flex-col gap-2 mb-4 md:flex-row md:items-center md:justify-between"
 					>
@@ -229,5 +234,18 @@ export default {
 </script>
 
 <style scoped>
-/* Add any specific styles for the patient prescription detail page here */
+.detail-card {
+	border: 1px solid #e5e7eb;
+	box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+	transition:
+		transform 0.18s ease,
+		box-shadow 0.18s ease,
+		border-color 0.18s ease;
+}
+
+.detail-card:hover {
+	transform: translateY(-1px);
+	border-color: #fda4af;
+	box-shadow: 0 12px 24px rgba(244, 63, 94, 0.14);
+}
 </style>

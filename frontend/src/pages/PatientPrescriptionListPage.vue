@@ -7,13 +7,27 @@
 			</p>
 		</header>
 		<div
-			class="form-control mb-6 max-w-md mx-auto flex flex-row items-center justify-between"
+			class="form-control mb-6 max-w-4xl mx-auto flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
 		>
-			<input
-				type="text"
-				placeholder="Search prescriptions..."
-				class="input input-bordered flex-grow mr-4"
-			/>
+			<div class="flex w-full flex-col gap-3 md:flex-row md:items-center">
+				<input
+					v-model.trim="searchQuery"
+					type="text"
+					placeholder="Search by medicine, doctor, patient, or notes"
+					class="input input-bordered w-full md:flex-grow"
+					@keyup.enter="applySearch"
+				/>
+				<button class="btn btn-outline" @click="applySearch">
+					Search
+				</button>
+				<button
+					v-if="searchQuery"
+					class="btn border-black bg-white text-red-600 hover:border-black hover:bg-red-50 hover:text-red-700"
+					@click="clearSearch"
+				>
+					Clear
+				</button>
+			</div>
 			<button class="btn btn-primary" @click="createPrescription">
 				Create Prescription
 			</button>
@@ -108,6 +122,7 @@ export default {
 	data() {
 		return {
 			prescriptions: [],
+			searchQuery: '',
 			currentPage: 1,
 			totalCount: 0,
 			hasNext: false,
@@ -125,6 +140,9 @@ export default {
 		this.fetchPrescriptions();
 	},
 	methods: {
+		applySearch() {
+			this.fetchPrescriptions(1);
+		},
 		changePage(page) {
 			if (
 				page < 1 ||
@@ -138,6 +156,14 @@ export default {
 		},
 		createPrescription() {
 			this.$router.push('/prescription/create'); // Navigate to the create prescription page
+		},
+		clearSearch() {
+			if (!this.searchQuery) {
+				return;
+			}
+
+			this.searchQuery = '';
+			this.fetchPrescriptions(1);
 		},
 		getDoctorName(prescription) {
 			return (
@@ -178,6 +204,7 @@ export default {
 					{
 						params: {
 							page,
+							search: this.searchQuery || undefined,
 						},
 						headers: {
 							Accept: 'application/json',

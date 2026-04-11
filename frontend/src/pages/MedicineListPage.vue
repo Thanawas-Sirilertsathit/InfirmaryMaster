@@ -24,7 +24,7 @@
 				<div
 					v-for="medicine in medicines"
 					:key="medicine.id"
-					class="card h-full overflow-hidden bg-base-100 shadow-md"
+					class="medicine-card card h-full overflow-hidden bg-base-100 shadow-md"
 				>
 					<figure class="h-56 w-full bg-base-200">
 						<img
@@ -48,7 +48,7 @@
 
 				<!-- Add Medicine Modal Trigger -->
 				<div
-					class="card flex h-full min-h-80 items-center justify-center bg-base-100 shadow-md"
+					class="medicine-card card flex h-full min-h-80 items-center justify-center bg-base-100 shadow-md"
 				>
 					<button
 						class="btn btn-primary"
@@ -173,4 +173,19 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.medicine-card {
+	border: 1px solid #e5e7eb;
+	box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+	transition:
+		transform 0.18s ease,
+		box-shadow 0.18s ease,
+		border-color 0.18s ease;
+}
+
+.medicine-card:hover {
+	transform: translateY(-1px);
+	border-color: #fda4af;
+	box-shadow: 0 12px 24px rgba(244, 63, 94, 0.14);
+}
+</style>

@@ -10,7 +10,7 @@
 			<div
 				v-for="item in inventory"
 				:key="item?.id"
-				class="card h-full overflow-hidden bg-base-100 shadow-md"
+				class="inventory-card card h-full overflow-hidden bg-base-100 shadow-md"
 			>
 				<figure class="h-56 w-full bg-base-200">
 					<img
@@ -40,7 +40,7 @@
 
 			<!-- Add Medicine Batch Card -->
 			<div
-				class="card flex h-full min-h-80 items-center justify-center bg-base-100 shadow-md"
+				class="inventory-card card flex h-full min-h-80 items-center justify-center bg-base-100 shadow-md"
 			>
 				<button class="btn btn-primary" @click="showAddModal = true">
 					Add Medicine Batch
@@ -198,5 +198,18 @@ export default {
 </script>
 
 <style scoped>
-/* Add any specific styles for the inventory page here */
+.inventory-card {
+	border: 1px solid #e5e7eb;
+	box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+	transition:
+		transform 0.18s ease,
+		box-shadow 0.18s ease,
+		border-color 0.18s ease;
+}
+
+.inventory-card:hover {
+	transform: translateY(-1px);
+	border-color: #fda4af;
+	box-shadow: 0 12px 24px rgba(244, 63, 94, 0.14);
+}
 </style>

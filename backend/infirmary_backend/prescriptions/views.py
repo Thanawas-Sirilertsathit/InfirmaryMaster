@@ -35,8 +35,20 @@ class PrescriptionListView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = Prescription.objects.all()
+        search = self.request.query_params.get('search', '').strip()
         medicine = self.request.query_params.get('medicine')
         patient_name = self.request.query_params.get('patient_name')
+
+        if search:
+            queryset = queryset.filter(
+                Q(items__medicine__name__icontains=search)
+                | Q(prescribed_by__first_name__icontains=search)
+                | Q(prescribed_by__last_name__icontains=search)
+                | Q(prescribed_by__username__icontains=search)
+                | Q(patient__user__first_name__icontains=search)
+                | Q(patient__user__last_name__icontains=search)
+                | Q(notes__icontains=search)
+            ).distinct()
 
         if medicine:
             queryset = queryset.filter(items__medicine__name__icontains=medicine).distinct()
