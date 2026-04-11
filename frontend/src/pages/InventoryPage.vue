@@ -10,23 +10,24 @@
 			<div
 				v-for="item in inventory"
 				:key="item?.id"
-				class="card bg-base-100 shadow-md"
+				class="card h-full overflow-hidden bg-base-100 shadow-md"
 			>
-				<figure>
+				<figure class="h-56 w-full bg-base-200">
 					<img
 						:src="item?.image"
 						:alt="item?.name || 'Medicine Image'"
+						class="h-full w-full object-cover"
 						onerror="
 							this.onerror = null;
 							this.src = 'default-image-path.jpg';
 						"
 					/>
 				</figure>
-				<div class="card-body">
+				<div class="card-body flex h-full flex-col">
 					<h2 class="card-title">{{ item?.name }}</h2>
 					<p>Amount: {{ item?.amount }}</p>
 					<p>Expiration Date: {{ item?.expirationDate }}</p>
-					<div class="card-actions justify-end">
+					<div class="card-actions mt-auto justify-end">
 						<button
 							class="btn btn-error"
 							@click="removeItem(item?.id)"
@@ -39,7 +40,7 @@
 
 			<!-- Add Medicine Batch Card -->
 			<div
-				class="card bg-base-100 shadow-md flex items-center justify-center"
+				class="card flex h-full min-h-80 items-center justify-center bg-base-100 shadow-md"
 			>
 				<button class="btn btn-primary" @click="showAddModal = true">
 					Add Medicine Batch
@@ -136,10 +137,14 @@ export default {
 			}
 		},
 		async removeItem(id) {
-			if (confirm('Are you sure you want to remove this item?')) {
+			this.batchToRemove = id; // Set the batch to remove
+			this.showRemoveModal = true; // Show the ConfirmRemoveModal
+		},
+		async confirmRemove() {
+			if (this.batchToRemove) {
 				try {
 					const response = await axios.delete(
-						`http://localhost:8000/api/inventory/batches/${id}/delete/`,
+						`http://localhost:8000/api/inventory/batches/${this.batchToRemove}/delete/`,
 						{
 							headers: {
 								Accept: 'application/json',
@@ -151,8 +156,11 @@ export default {
 					this.fetchInventory(); // Refresh inventory after removal
 				} catch (error) {
 					console.error('Error removing batch:', error);
+				} finally {
+					this.batchToRemove = null; // Reset the batch to remove
 				}
 			}
+			this.showRemoveModal = false; // Close the ConfirmRemoveModal
 		},
 		async addMedicineBatch(batch) {
 			try {
@@ -180,10 +188,6 @@ export default {
 				console.error('Error adding medicine batch:', error);
 			}
 			this.showAddModal = false;
-		},
-		confirmRemove() {
-			console.log('Removing batch:', this.batchToRemove);
-			this.showRemoveModal = false;
 		},
 	},
 	created() {

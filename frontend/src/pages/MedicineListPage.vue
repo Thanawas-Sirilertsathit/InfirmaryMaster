@@ -24,15 +24,19 @@
 				<div
 					v-for="medicine in medicines"
 					:key="medicine.id"
-					class="card bg-base-100 shadow-md"
+					class="card h-full overflow-hidden bg-base-100 shadow-md"
 				>
-					<figure>
-						<img :src="medicine.image" alt="Medicine Image" />
+					<figure class="h-56 w-full bg-base-200">
+						<img
+							:src="medicine.image"
+							alt="Medicine Image"
+							class="h-full w-full object-cover"
+						/>
 					</figure>
-					<div class="card-body">
+					<div class="card-body flex h-full flex-col">
 						<h2 class="card-title">{{ medicine.name }}</h2>
 						<p>{{ medicine.description }}</p>
-						<div class="card-actions justify-end">
+						<div class="card-actions mt-auto justify-end">
 							<router-link
 								:to="`/medicine/${medicine.id}`"
 								class="btn btn-primary"
@@ -44,7 +48,7 @@
 
 				<!-- Add Medicine Modal Trigger -->
 				<div
-					class="card bg-base-100 shadow-md flex items-center justify-center"
+					class="card flex h-full min-h-80 items-center justify-center bg-base-100 shadow-md"
 				>
 					<button
 						class="btn btn-primary"
