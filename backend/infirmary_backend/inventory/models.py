@@ -2,6 +2,9 @@ from django.db import models
 from django.utils import timezone
 from medicines.models import Medicine
 import uuid
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class MedicineBatch(models.Model):
@@ -45,31 +48,30 @@ def get_available_stock(medicine):
     return sum(b.quantity for b in batches)
 
 
-def deduct_stock(medicine, quantity, reference='prescription'):
+def deduct_stock(batch_id, quantity, reference='prescription'):
+    logger.debug('Deducting stock for batch ID: %s, quantity: %d', batch_id, quantity)  # Log batch ID and quantity
     if quantity <= 0:
         return 0
 
-    batches = MedicineBatch.objects.filter(medicine=medicine, expiration_date__gte=timezone.now().date()).order_by('expiration_date')
-    remaining = quantity
+    try:
+        batch = MedicineBatch.objects.get(id=batch_id, expiration_date__gte=timezone.now().date())
+    except MedicineBatch.DoesNotExist:
+        logger.error('Batch ID %s does not exist or is expired', batch_id)  # Log error
+        raise ValueError(f"Batch ID {batch_id} does not exist or is expired")
 
-    for batch in batches:
-        if remaining <= 0:
-            break
+    if batch.quantity < quantity:
+        logger.error('Not enough stock for batch ID: %s. Needed: %d, available: %d', batch_id, quantity, batch.quantity)  # Log error
+        raise ValueError(f"Not enough stock for {batch.medicine} [{batch.batch_number}]. Needed {quantity}, available {batch.quantity}")
 
-        take = min(batch.quantity, remaining)
-        batch.quantity -= take
-        batch.save(update_fields=['quantity'])
+    batch.quantity -= quantity
+    batch.save(update_fields=['quantity'])
 
-        StockTransaction.objects.create(
-            batch=batch,
-            transaction_type=StockTransaction.TYPE_OUT,
-            quantity=take,
-            reference=reference,
-            notes=f'Removed for {reference}',
-        )
-        remaining -= take
+    StockTransaction.objects.create(
+        batch=batch,
+        transaction_type=StockTransaction.TYPE_OUT,
+        quantity=quantity,
+        reference=reference,
+        notes=f'Removed for {reference}',
+    )
 
-    if remaining > 0:
-        raise ValueError(f"Not enough stock for {medicine}. Needed {quantity}, available {quantity-remaining}")
-
-    return quantity - remaining
+    return quantity

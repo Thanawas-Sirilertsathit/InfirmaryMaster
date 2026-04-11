@@ -6,12 +6,17 @@
 				View and manage your prescriptions.
 			</p>
 		</header>
-		<div class="form-control mb-6 max-w-md mx-auto">
+		<div
+			class="form-control mb-6 max-w-md mx-auto flex flex-row items-center justify-between"
+		>
 			<input
 				type="text"
 				placeholder="Search prescriptions..."
-				class="input input-bordered"
+				class="input input-bordered flex-grow mr-4"
 			/>
+			<button class="btn btn-primary" @click="createPrescription">
+				Create Prescription
+			</button>
 		</div>
 		<table
 			class="table-auto w-full max-w-4xl mx-auto bg-white shadow-md rounded"
@@ -21,17 +26,41 @@
 					<th class="px-4 py-2">Prescription ID</th>
 					<th class="px-4 py-2">Date</th>
 					<th class="px-4 py-2">Doctor</th>
+					<th class="px-4 py-2">Patient</th>
+					<th class="px-4 py-2">Notes</th>
+					<th class="px-4 py-2">Medicines</th>
 					<th class="px-4 py-2">Actions</th>
 				</tr>
 			</thead>
 			<tbody>
+				<tr v-if="!prescriptions.length">
+					<td
+						class="border px-4 py-6 text-center text-gray-500"
+						colspan="7"
+					>
+						No prescriptions found.
+					</td>
+				</tr>
 				<tr
 					v-for="prescription in prescriptions"
 					:key="prescription.id"
 				>
 					<td class="border px-4 py-2">{{ prescription.id }}</td>
-					<td class="border px-4 py-2">{{ prescription.date }}</td>
-					<td class="border px-4 py-2">{{ prescription.doctor }}</td>
+					<td class="border px-4 py-2">
+						{{ formatDate(prescription.created_at) }}
+					</td>
+					<td class="border px-4 py-2">
+						{{ getDoctorName(prescription) }}
+					</td>
+					<td class="border px-4 py-2">
+						{{ prescription.patient_name || '-' }}
+					</td>
+					<td class="border px-4 py-2">
+						{{ prescription.notes || '-' }}
+					</td>
+					<td class="border px-4 py-2">
+						{{ getMedicineSummary(prescription) }}
+					</td>
 					<td class="border px-4 py-2">
 						<router-link
 							:to="`/prescription/${prescription.id}`"
@@ -42,29 +71,133 @@
 				</tr>
 			</tbody>
 		</table>
+		<div
+			class="max-w-4xl mx-auto mt-6 flex items-center justify-between gap-4"
+		>
+			<p class="text-sm text-gray-600">
+				Page {{ currentPage }} of {{ totalPages }}
+				<span v-if="totalCount">({{ totalCount }} prescriptions)</span>
+			</p>
+			<div class="flex gap-2">
+				<button
+					class="btn btn-outline btn-sm"
+					@click="changePage(currentPage - 1)"
+					:disabled="!hasPrevious"
+				>
+					Previous
+				</button>
+				<button
+					class="btn btn-outline btn-sm"
+					@click="changePage(currentPage + 1)"
+					:disabled="!hasNext"
+				>
+					Next
+				</button>
+			</div>
+		</div>
 	</div>
 </template>
 
 <script>
 import axios from 'axios';
 
+const token = localStorage.getItem('authToken');
+
 export default {
 	name: 'PatientPrescriptionListPage',
 	data() {
 		return {
 			prescriptions: [],
+			currentPage: 1,
+			totalCount: 0,
+			hasNext: false,
+			hasPrevious: false,
+			pageSize: 20,
 		};
+	},
+	computed: {
+		totalPages() {
+			const total = Math.ceil(this.totalCount / this.pageSize);
+			return total || 1;
+		},
 	},
 	created() {
 		this.fetchPrescriptions();
 	},
 	methods: {
-		async fetchPrescriptions() {
+		changePage(page) {
+			if (
+				page < 1 ||
+				page > this.totalPages ||
+				page === this.currentPage
+			) {
+				return;
+			}
+
+			this.fetchPrescriptions(page);
+		},
+		createPrescription() {
+			this.$router.push('/prescription/create'); // Navigate to the create prescription page
+		},
+		getDoctorName(prescription) {
+			return (
+				prescription?.doctor || prescription?.prescribed_by_name || '-'
+			);
+		},
+		getMedicineSummary(prescription) {
+			if (
+				!Array.isArray(prescription?.items) ||
+				!prescription.items.length
+			) {
+				return '-';
+			}
+
+			return prescription.items
+				.map((item) => {
+					const medicineName =
+						item.medicine_name || 'Unknown medicine';
+					const dosage = item.medicine_dosage
+						? ` (${item.medicine_dosage})`
+						: '';
+					const quantity = item.quantity ? ` x${item.quantity}` : '';
+					return `${medicineName}${dosage}${quantity}`;
+				})
+				.join(', ');
+		},
+		formatDate(value) {
+			if (!value) {
+				return '-';
+			}
+
+			return new Date(value).toLocaleDateString();
+		},
+		async fetchPrescriptions(page = 1) {
 			try {
 				const response = await axios.get(
-					'http://localhost:8000/api/prescriptions/',
+					'http://localhost:8000/api/prescriptions/list/',
+					{
+						params: {
+							page,
+						},
+						headers: {
+							Accept: 'application/json',
+							Authorization: `Bearer ${token}`,
+						},
+					},
 				);
-				this.prescriptions = response.data;
+				const results = Array.isArray(response.data?.results)
+					? response.data.results.filter(Boolean)
+					: Array.isArray(response.data)
+						? response.data.filter(Boolean)
+						: [];
+
+				this.prescriptions = results;
+				this.currentPage = page;
+				this.totalCount = Number.isInteger(response.data?.count)
+					? response.data.count
+					: results.length;
+				this.hasNext = Boolean(response.data?.next);
+				this.hasPrevious = Boolean(response.data?.previous);
 			} catch (error) {
 				console.error('Error fetching prescriptions:', error);
 			}

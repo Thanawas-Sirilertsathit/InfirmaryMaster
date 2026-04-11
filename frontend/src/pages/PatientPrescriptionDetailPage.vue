@@ -10,7 +10,14 @@
 				Prescription ID: {{ prescription.id }}
 			</h2>
 			<p class="text-secondary mb-4">Date: {{ prescription.date }}</p>
-			<p class="text-gray-700 mb-4">Doctor: {{ prescription.doctor }}</p>
+			<p class="text-gray-700 mb-4">
+				Doctor:
+				{{
+					prescription.doctor ||
+					prescription.prescribed_by_name ||
+					'-'
+				}}
+			</p>
 			<h3 class="text-xl font-bold mb-2">Medicines:</h3>
 			<ul class="list-disc pl-6">
 				<li

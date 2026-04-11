@@ -44,6 +44,10 @@ const routes = [
 		path: '/prescription/:id',
 		component: () => import('../pages/PatientPrescriptionDetailPage.vue'),
 	},
+	{
+		path: '/prescription/create',
+		component: () => import('../pages/CreatePrescriptionPage.vue'),
+	},
 	{ path: '/staff', component: () => import('../pages/StaffTablePage.vue') },
 ];
 
