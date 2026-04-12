@@ -38,6 +38,7 @@ const routes = [
 	{
 		path: '/prescriptions',
 		component: StaffLayout,
+		meta: { requiresVerifiedStaff: true },
 		children: [
 			{
 				path: '',
@@ -47,11 +48,21 @@ const routes = [
 		],
 	},
 	{
+		path: '/my-prescriptions',
+		component: () => import('../pages/MyPrescriptionListPage.vue'),
+	},
+	{
+		path: '/my-prescriptions/:id',
+		component: () => import('../pages/MyPrescriptionDetailPage.vue'),
+	},
+	{
 		path: '/prescription/:id',
+		meta: { requiresVerifiedStaff: true },
 		component: () => import('../pages/PatientPrescriptionDetailPage.vue'),
 	},
 	{
 		path: '/prescription/create',
+		meta: { requiresVerifiedStaff: true },
 		component: () => import('../pages/CreatePrescriptionPage.vue'),
 	},
 	{ path: '/staff', component: () => import('../pages/StaffTablePage.vue') },
@@ -81,6 +92,16 @@ router.beforeEach((to, from, next) => {
 		user?.verified
 	) {
 		next('/inventory');
+		return;
+	}
+
+	if (
+		user?.role === 'patient' &&
+		(to.path === '/prescriptions' ||
+			to.path === '/prescription/create' ||
+			to.path.startsWith('/prescription/'))
+	) {
+		next('/my-prescriptions');
 		return;
 	}
 

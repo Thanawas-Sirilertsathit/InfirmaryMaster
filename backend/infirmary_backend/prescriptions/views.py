@@ -77,3 +77,37 @@ class PatientPrescriptionsView(generics.ListAPIView):
             if not hasattr(self.request.user, 'patient_profile') or self.request.user.patient_profile.id != patient_id:
                 return Prescription.objects.none()
         return Prescription.objects.filter(patient_id=patient_id)
+
+
+class MyPrescriptionListView(generics.ListAPIView):
+    serializer_class = PrescriptionSerializer
+    permission_classes = [IsPatient]
+
+    def get_queryset(self):
+        if not hasattr(self.request.user, 'patient_profile'):
+            return Prescription.objects.none()
+
+        queryset = Prescription.objects.filter(patient=self.request.user.patient_profile)
+        search = self.request.query_params.get('search', '').strip()
+
+        if search:
+            queryset = queryset.filter(
+                Q(items__medicine__name__icontains=search)
+                | Q(prescribed_by__first_name__icontains=search)
+                | Q(prescribed_by__last_name__icontains=search)
+                | Q(prescribed_by__username__icontains=search)
+                | Q(notes__icontains=search)
+            ).distinct()
+
+        return queryset
+
+
+class MyPrescriptionDetailView(generics.RetrieveAPIView):
+    serializer_class = PrescriptionSerializer
+    permission_classes = [IsPatient]
+
+    def get_queryset(self):
+        if not hasattr(self.request.user, 'patient_profile'):
+            return Prescription.objects.none()
+
+        return Prescription.objects.filter(patient=self.request.user.patient_profile)

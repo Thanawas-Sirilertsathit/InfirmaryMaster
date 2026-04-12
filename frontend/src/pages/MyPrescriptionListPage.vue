@@ -1,10 +1,8 @@
 <template>
 	<div class="patient-prescription-list-page">
 		<header class="text-center py-10">
-			<h1 class="text-4xl font-bold text-primary">All Prescriptions</h1>
-			<p class="text-secondary mt-4">
-				View and manage your prescriptions.
-			</p>
+			<h1 class="text-4xl font-bold text-primary">My Prescriptions</h1>
+			<p class="text-secondary mt-4">View your prescriptions only.</p>
 		</header>
 		<div
 			class="form-control mb-6 max-w-4xl mx-auto flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
@@ -13,7 +11,7 @@
 				<input
 					v-model.trim="searchQuery"
 					type="text"
-					placeholder="Search by medicine, doctor, patient, or notes"
+					placeholder="Search by medicine, doctor, or notes"
 					class="input input-bordered w-full md:flex-grow"
 					@keyup.enter="applySearch"
 				/>
@@ -28,9 +26,6 @@
 					Clear
 				</button>
 			</div>
-			<button class="btn btn-primary" @click="createPrescription">
-				Create Prescription
-			</button>
 		</div>
 		<table
 			class="table-auto w-full max-w-4xl mx-auto bg-white shadow-md rounded"
@@ -77,7 +72,7 @@
 					</td>
 					<td class="border px-4 py-2">
 						<router-link
-							:to="`/prescription/${prescription.id}`"
+							:to="`/my-prescriptions/${prescription.id}`"
 							class="btn btn-primary btn-sm"
 							>View</router-link
 						>
@@ -118,7 +113,7 @@ import axios from 'axios';
 const token = localStorage.getItem('authToken');
 
 export default {
-	name: 'PatientPrescriptionListPage',
+	name: 'MyPrescriptionListPage',
 	data() {
 		return {
 			prescriptions: [],
@@ -153,9 +148,6 @@ export default {
 			}
 
 			this.fetchPrescriptions(page);
-		},
-		createPrescription() {
-			this.$router.push('/prescription/create'); // Navigate to the create prescription page
 		},
 		clearSearch() {
 			if (!this.searchQuery) {
@@ -211,7 +203,7 @@ export default {
 		async fetchPrescriptions(page = 1) {
 			try {
 				const response = await axios.get(
-					'http://localhost:8000/api/prescriptions/list/',
+					'http://localhost:8000/api/prescriptions/mine/',
 					{
 						params: {
 							page,
@@ -244,6 +236,4 @@ export default {
 };
 </script>
 
-<style scoped>
-/* Add any specific styles for the patient prescription list page here */
-</style>
+<style scoped></style>

@@ -144,7 +144,7 @@ export default {
 							: '/staff/unverified',
 					);
 				} else if (this.role === 'patient') {
-					this.$router.push('/prescriptions');
+					this.$router.push('/my-prescriptions');
 				} else {
 					this.$router.push('/'); // Default fallback
 				}
