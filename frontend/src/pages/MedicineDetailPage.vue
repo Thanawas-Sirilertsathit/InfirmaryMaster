@@ -4,12 +4,23 @@
 			<h1 class="text-4xl font-bold text-primary">Medicine Details</h1>
 		</header>
 		<div class="max-w-2xl mx-auto">
-			<button
-				@click="$router.push('/medicine')"
-				class="btn btn-primary mb-6"
+			<div
+				class="mb-6 flex flex-col gap-3 sm:flex-row sm:justify-between"
 			>
-				Back to Medicine List
-			</button>
+				<button
+					@click="$router.push('/medicine')"
+					class="btn btn-primary"
+				>
+					Back to Medicine List
+				</button>
+				<button
+					v-if="medicine"
+					class="btn btn-outline"
+					@click="showEditModal = true"
+				>
+					Edit Medicine
+				</button>
+			</div>
 			<div v-if="loading" class="text-center py-10">
 				<p>Loading medicine details...</p>
 			</div>
@@ -40,39 +51,56 @@
 					{{ new Date(medicine.created_at).toLocaleString() }}
 				</p>
 			</div>
+
+			<EditMedicineModal
+				:isOpen="showEditModal"
+				:medicine="medicine"
+				@save="updateMedicine"
+				@close="showEditModal = false"
+			/>
 		</div>
 	</div>
 </template>
 
 <script>
 import axios from 'axios';
+import EditMedicineModal from '@/components/modals/EditMedicineModal.vue';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 export default {
 	name: 'MedicineDetailPage',
+	components: {
+		EditMedicineModal,
+	},
 	setup() {
 		const route = useRoute();
 		const medicine = ref(null);
 		const error = ref(null);
 		const loading = ref(true);
+		const showEditModal = ref(false);
+
+		const getAuthHeaders = () => {
+			const token = localStorage.getItem('authToken');
+			if (!token) {
+				throw new Error(
+					'Authentication token is missing. Please log in.',
+				);
+			}
+
+			return {
+				Authorization: `Bearer ${token}`,
+			};
+		};
 
 		const fetchMedicine = async (id) => {
 			loading.value = true;
 			error.value = null;
 			try {
-				const token = localStorage.getItem('authToken');
-				if (!token) {
-					throw new Error(
-						'Authentication token is missing. Please log in.',
-					);
-				}
 				const response = await axios.get(
 					`http://localhost:8000/api/medicines/${id}/`,
 					{
-						headers: {
-							Authorization: `Bearer ${token}`,
-						},
+						headers: getAuthHeaders(),
 					},
 				);
 				medicine.value = response.data;
@@ -85,6 +113,26 @@ export default {
 			}
 		};
 
+		const updateMedicine = async (payload) => {
+			error.value = null;
+			try {
+				const medicineId = route.params.id;
+				const response = await axios.put(
+					`http://localhost:8000/api/medicines/${medicineId}/`,
+					payload,
+					{
+						headers: getAuthHeaders(),
+					},
+				);
+
+				medicine.value = response.data;
+				showEditModal.value = false;
+			} catch (err) {
+				error.value = 'Failed to update medicine details.';
+				console.error(err);
+			}
+		};
+
 		onMounted(() => {
 			const medicineId = route.params.id; // Get dynamic ID from route params
 			fetchMedicine(medicineId);
@@ -94,6 +142,8 @@ export default {
 			medicine,
 			error,
 			loading,
+			showEditModal,
+			updateMedicine,
 		};
 	},
 };

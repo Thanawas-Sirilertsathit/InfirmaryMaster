@@ -4,10 +4,12 @@ from django.utils import timezone
 
 class ReportNotification(models.Model):
     TYPE_LOW_STOCK = 'low_stock'
+    TYPE_OUT_OF_STOCK = 'out_of_stock'
     TYPE_EXPIRING_BATCH = 'expiring_batch'
 
     TYPE_CHOICES = [
         (TYPE_LOW_STOCK, 'Low Stock'),
+        (TYPE_OUT_OF_STOCK, 'Out Of Stock'),
         (TYPE_EXPIRING_BATCH, 'Expiring Batch'),
     ]
 

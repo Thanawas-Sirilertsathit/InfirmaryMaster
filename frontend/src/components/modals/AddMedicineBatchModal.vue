@@ -6,14 +6,14 @@
 				<div class="form-control">
 					<label class="label">Medicine Name</label>
 					<select
-						v-model="newBatch.name"
+						v-model="newBatch.medicineId"
 						class="select select-bordered"
 					>
 						<option disabled value="">Select a medicine</option>
 						<option
 							v-for="medicine in medicineList"
 							:key="medicine.id"
-							:value="medicine.name"
+							:value="medicine.id"
 						>
 							{{ medicine.name }}
 						</option>
@@ -59,7 +59,7 @@ export default {
 	data() {
 		return {
 			newBatch: {
-				name: '',
+				medicineId: '',
 				amount: 0,
 				expDate: '',
 			},
@@ -67,14 +67,22 @@ export default {
 	},
 	methods: {
 		submitForm() {
-			if (!this.newBatch.name) {
+			if (!this.newBatch.medicineId) {
 				alert('Please select a medicine.');
 				return;
 			}
-			this.$emit('add-batch', this.newBatch);
+			this.$emit('add-batch', {
+				...this.newBatch,
+				amount: Number(this.newBatch.amount),
+			});
 			this.closeModal();
 		},
 		closeModal() {
+			this.newBatch = {
+				medicineId: '',
+				amount: 0,
+				expDate: '',
+			};
 			this.$emit('close');
 		},
 	},

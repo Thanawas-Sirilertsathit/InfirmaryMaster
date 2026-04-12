@@ -15,7 +15,7 @@ class TriggerLowStockView(APIView):
     def post(self, request):
         count = send_low_stock_alert()
         return Response({
-            'message': f'Low stock alert sent to {count} items'
+            'message': f'Inventory alert sent for {count} medicines'
         })
 
 

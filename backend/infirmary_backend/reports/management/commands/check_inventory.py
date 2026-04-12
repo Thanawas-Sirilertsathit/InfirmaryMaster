@@ -9,5 +9,5 @@ class Command(BaseCommand):
         low_count = send_low_stock_alert()
         exp_count = send_expiration_alert()
 
-        self.stdout.write(self.style.SUCCESS(f'Low stock alerts sent: {low_count}'))
+        self.stdout.write(self.style.SUCCESS(f'Inventory alerts sent: {low_count}'))
         self.stdout.write(self.style.SUCCESS(f'Expiration alerts sent: {exp_count}'))

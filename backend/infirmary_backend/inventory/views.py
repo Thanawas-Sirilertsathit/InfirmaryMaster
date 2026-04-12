@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from datetime import timedelta
 from django.utils import timezone
-from django.db.models import Sum
+from django.db.models import Q, Sum
 from .models import MedicineBatch, get_available_stock
 from .serializers import MedicineBatchSerializer, InventorySummarySerializer
 from users.permissions import IsStaffOrAdmin
@@ -33,10 +33,23 @@ class MedicineBatchListView(generics.ListAPIView):
     permission_classes = [IsStaffOrAdmin]
 
     def get_queryset(self):
+        queryset = MedicineBatch.objects.select_related('medicine').order_by(
+            '-added_at',
+            '-id',
+        )
         medicine_id = self.request.query_params.get('medicine')
+        search = self.request.query_params.get('search', '').strip()
+
         if medicine_id:
-            return MedicineBatch.objects.filter(medicine_id=medicine_id)
-        return MedicineBatch.objects.all()
+            queryset = queryset.filter(medicine_id=medicine_id)
+
+        if search:
+            queryset = queryset.filter(
+                Q(medicine__name__icontains=search)
+                | Q(medicine__description__icontains=search)
+            )
+
+        return queryset
 
 
 class InventorySummaryView(APIView):
