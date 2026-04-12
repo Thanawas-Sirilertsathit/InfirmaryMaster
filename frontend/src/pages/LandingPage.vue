@@ -9,10 +9,14 @@
 			</p>
 		</header>
 		<div class="flex justify-center mt-10">
-			<router-link to="/register" class="btn btn-primary mx-2"
+			<router-link
+				to="/register"
+				class="btn btn-primary mx-2 border-2 border-base-content"
 				>Register</router-link
 			>
-			<router-link to="/login" class="btn btn-secondary mx-2"
+			<router-link
+				to="/login"
+				class="btn btn-secondary mx-2 border-2 border-base-content"
 				>Login</router-link
 			>
 		</div>

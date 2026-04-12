@@ -6,8 +6,13 @@ const routes = [
 	{ path: '/register', component: () => import('../pages/RegisterPage.vue') },
 	{ path: '/login', component: () => import('../pages/LoginPage.vue') },
 	{
+		path: '/staff/unverified',
+		component: () => import('../pages/StaffUnverifiedPage.vue'),
+	},
+	{
 		path: '/medicine',
 		component: StaffLayout,
+		meta: { requiresVerifiedStaff: true },
 		children: [
 			{
 				path: '',
@@ -22,6 +27,7 @@ const routes = [
 	{
 		path: '/inventory',
 		component: StaffLayout,
+		meta: { requiresVerifiedStaff: true },
 		children: [
 			{
 				path: '',
@@ -54,6 +60,31 @@ const routes = [
 const router = createRouter({
 	history: createWebHistory(),
 	routes,
+});
+
+router.beforeEach((to, from, next) => {
+	const storedUser = localStorage.getItem('authUser');
+	const user = storedUser ? JSON.parse(storedUser) : null;
+
+	if (
+		to.meta.requiresVerifiedStaff &&
+		user?.role === 'staff' &&
+		!user?.verified
+	) {
+		next('/staff/unverified');
+		return;
+	}
+
+	if (
+		to.path === '/staff/unverified' &&
+		user?.role === 'staff' &&
+		user?.verified
+	) {
+		next('/inventory');
+		return;
+	}
+
+	next();
 });
 
 export default router;

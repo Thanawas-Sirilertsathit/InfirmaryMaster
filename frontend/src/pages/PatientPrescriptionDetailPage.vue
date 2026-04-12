@@ -59,7 +59,7 @@
 						<div>
 							<p class="text-sm text-gray-500">Patient</p>
 							<p class="text-gray-800 font-medium">
-								{{ prescription.patient_name || '-' }}
+								{{ patientName }}
 							</p>
 						</div>
 						<div>
@@ -173,6 +173,17 @@ export default {
 				this.prescription?.prescribed_by_name ||
 				'-'
 			);
+		},
+		patientName() {
+			const fullName = [
+				this.prescription?.patient_first_name,
+				this.prescription?.patient_last_name,
+			]
+				.filter(Boolean)
+				.join(' ')
+				.trim();
+
+			return fullName || this.prescription?.patient_name || '-';
 		},
 		itemCountLabel() {
 			const itemCount = Array.isArray(this.prescription?.items)

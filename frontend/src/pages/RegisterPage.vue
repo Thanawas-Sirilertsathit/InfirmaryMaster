@@ -22,12 +22,24 @@
 			</div>
 			<div class="form-control mb-4">
 				<label class="label">
-					<span class="label-text">Full Name</span>
+					<span class="label-text">First Name</span>
 				</label>
 				<input
 					type="text"
-					v-model="fullName"
-					placeholder="Enter your full name"
+					v-model="firstName"
+					placeholder="Enter your first name"
+					class="input input-bordered"
+					required
+				/>
+			</div>
+			<div class="form-control mb-4">
+				<label class="label">
+					<span class="label-text">Last Name</span>
+				</label>
+				<input
+					type="text"
+					v-model="lastName"
+					placeholder="Enter your last name"
 					class="input input-bordered"
 					required
 				/>
@@ -91,7 +103,8 @@ export default {
 	data() {
 		return {
 			username: '',
-			fullName: '',
+			firstName: '',
+			lastName: '',
 			email: '',
 			password: '',
 			confirmPassword: '',
@@ -109,17 +122,27 @@ export default {
 					'http://localhost:8000/api/auth/register/',
 					{
 						username: this.username,
-						full_name: this.fullName,
+						first_name: this.firstName,
+						last_name: this.lastName,
 						email: this.email,
 						password: this.password,
 						role: this.role,
 					},
 				);
 				console.log('Registration successful:', response.data);
+				localStorage.setItem('authToken', response.data.access);
+				localStorage.setItem(
+					'authUser',
+					JSON.stringify(response.data.user),
+				);
 
 				// Navigate based on selected role
 				if (this.role === 'staff') {
-					this.$router.push('/inventory');
+					this.$router.push(
+						response.data.user.verified
+							? '/inventory'
+							: '/staff/unverified',
+					);
 				} else if (this.role === 'patient') {
 					this.$router.push('/prescriptions');
 				} else {

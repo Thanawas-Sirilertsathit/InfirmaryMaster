@@ -8,7 +8,10 @@ class IsAdmin(BasePermission):
 
 class IsStaff(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and (request.user.is_staff_role or request.user.is_admin_role)
+        return request.user.is_authenticated and (
+            request.user.is_admin_role
+            or (request.user.is_staff_role and request.user.verified)
+        )
 
 
 class IsPatient(BasePermission):
@@ -18,7 +21,10 @@ class IsPatient(BasePermission):
 
 class IsStaffOrAdmin(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and (request.user.is_staff_role or request.user.is_admin_role)
+        return request.user.is_authenticated and (
+            request.user.is_admin_role
+            or (request.user.is_staff_role and request.user.verified)
+        )
 
 
 class IsOwnPatientData(BasePermission):

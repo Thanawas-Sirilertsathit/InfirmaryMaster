@@ -65,21 +65,30 @@ export default {
 
 				// Extract and store the access token in localStorage
 				const accessToken = response.data.access;
+				const authenticatedUser = response.data.user;
 				if (accessToken) {
 					localStorage.setItem('authToken', accessToken);
+					localStorage.setItem(
+						'authUser',
+						JSON.stringify(authenticatedUser),
+					);
 					console.log('Access token stored in localStorage');
 				} else {
 					throw new Error('Access token is missing in the response.');
 				}
 
 				// Extract user role from response
-				const userRole = response.data.user.role;
+				const userRole = authenticatedUser.role;
 
 				// Navigate based on role
 				if (userRole === 'admin') {
 					this.$router.push('/staff');
 				} else if (userRole === 'staff') {
-					this.$router.push('/inventory');
+					this.$router.push(
+						authenticatedUser.verified
+							? '/inventory'
+							: '/staff/unverified',
+					);
 				} else if (userRole === 'patient') {
 					this.$router.push('/prescriptions');
 				} else {

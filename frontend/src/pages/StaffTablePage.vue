@@ -44,45 +44,94 @@
 				</tr>
 			</tbody>
 		</table>
+
+		<ConfirmVerifyStaffModal
+			:isOpen="showVerifyModal"
+			:staffName="staffToVerify?.name"
+			@confirm-verify="confirmVerifyStaff"
+			@close="closeVerifyModal"
+		/>
 	</div>
 </template>
 
 <script>
+import ConfirmVerifyStaffModal from '@/components/modals/ConfirmVerifyStaffModal.vue';
 import axios from 'axios';
+
+const token = localStorage.getItem('authToken');
 
 export default {
 	name: 'StaffTablePage',
+	components: {
+		ConfirmVerifyStaffModal,
+	},
 	data() {
 		return {
 			staffList: [],
+			showVerifyModal: false,
+			staffToVerify: null,
 		};
 	},
 	created() {
 		this.fetchStaff();
 	},
 	methods: {
+		getStaffName(staff) {
+			return (
+				[staff.first_name, staff.last_name].filter(Boolean).join(' ') ||
+				staff.username ||
+				'-'
+			);
+		},
 		async fetchStaff() {
 			try {
 				const response = await axios.get(
-					'http://localhost:8000/api/staff/',
+					'http://localhost:8000/api/auth/staff/',
+					{
+						headers: {
+							Accept: 'application/json',
+							Authorization: `Bearer ${token}`,
+						},
+					},
 				);
-				this.staffList = response.data;
+				this.staffList = response.data.map((staff) => ({
+					...staff,
+					name: this.getStaffName(staff),
+				}));
 			} catch (error) {
 				console.error('Error fetching staff:', error);
 			}
 		},
-		async verifyStaff(id) {
+		verifyStaff(id) {
+			this.staffToVerify =
+				this.staffList.find((staff) => staff.id === id) || null;
+			this.showVerifyModal = Boolean(this.staffToVerify);
+		},
+		closeVerifyModal() {
+			this.showVerifyModal = false;
+			this.staffToVerify = null;
+		},
+		async confirmVerifyStaff() {
+			if (!this.staffToVerify) {
+				return;
+			}
+
 			try {
 				await axios.post(
-					`http://localhost:8000/api/staff/${id}/verify/`,
+					'http://localhost:8000/api/auth/staff/verify/',
+					{ id: this.staffToVerify.id },
+					{
+						headers: {
+							Accept: 'application/json',
+							Authorization: `Bearer ${token}`,
+						},
+					},
 				);
-				const staff = this.staffList.find((s) => s.id === id);
-				if (staff) {
-					staff.verified = true;
-				}
-				alert('Staff verified successfully!');
+				await this.fetchStaff();
 			} catch (error) {
 				console.error('Error verifying staff:', error);
+			} finally {
+				this.closeVerifyModal();
 			}
 		},
 	},

@@ -37,6 +37,8 @@ class PrescriptionCreateItemSerializer(serializers.Serializer):
 
 class PrescriptionSerializer(serializers.ModelSerializer):
     items = PrescriptionItemSerializer(many=True, read_only=True)
+    patient_first_name = serializers.CharField(source='patient.user.first_name', read_only=True)
+    patient_last_name = serializers.CharField(source='patient.user.last_name', read_only=True)
     patient_name = serializers.CharField(source='patient.user.get_full_name', read_only=True)
     prescribed_by_name = serializers.SerializerMethodField()
     doctor = serializers.SerializerMethodField()
@@ -52,24 +54,25 @@ class PrescriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Prescription
-        fields = ['id', 'patient', 'patient_name', 'prescribed_by', 'prescribed_by_name', 'doctor', 'created_at', 'notes', 'items']
+        fields = ['id', 'patient', 'patient_first_name', 'patient_last_name', 'patient_name', 'prescribed_by', 'prescribed_by_name', 'doctor', 'created_at', 'notes', 'items']
         read_only_fields = ['id', 'created_at', 'prescribed_by']
 
 
 class PrescriptionCreateSerializer(serializers.ModelSerializer):
     items = PrescriptionCreateItemSerializer(many=True)
-    patient_name = serializers.CharField(write_only=True)
+    patient_first_name = serializers.CharField(write_only=True)
+    patient_last_name = serializers.CharField(write_only=True)
 
     class Meta:
         model = Prescription
-        fields = ['patient_name', 'notes', 'items']
+        fields = ['patient_first_name', 'patient_last_name', 'notes', 'items']
 
     @transaction.atomic
     def create(self, validated_data):
-        patient_name = validated_data.pop('patient_name')
+        first_name = validated_data.pop('patient_first_name').strip()
+        last_name = validated_data.pop('patient_last_name').strip()
         items_data = validated_data.pop('items')
 
-        first_name, last_name = patient_name.split(' ', 1) if ' ' in patient_name else (patient_name, '')
         username = f'{first_name.lower()}_{last_name.lower()}' if last_name else first_name.lower()
 
         user, _ = User.objects.get_or_create(

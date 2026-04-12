@@ -67,7 +67,7 @@
 						{{ getDoctorName(prescription) }}
 					</td>
 					<td class="border px-4 py-2">
-						{{ prescription.patient_name || '-' }}
+						{{ getPatientName(prescription) }}
 					</td>
 					<td class="border px-4 py-2">
 						{{ prescription.notes || '-' }}
@@ -169,6 +169,17 @@ export default {
 			return (
 				prescription?.doctor || prescription?.prescribed_by_name || '-'
 			);
+		},
+		getPatientName(prescription) {
+			const fullName = [
+				prescription?.patient_first_name,
+				prescription?.patient_last_name,
+			]
+				.filter(Boolean)
+				.join(' ')
+				.trim();
+
+			return fullName || prescription?.patient_name || '-';
 		},
 		getMedicineSummary(prescription) {
 			if (

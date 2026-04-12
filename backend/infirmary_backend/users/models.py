@@ -14,6 +14,7 @@ class User(AbstractUser):
     ]
 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_PATIENT)
+    verified = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = 'User'

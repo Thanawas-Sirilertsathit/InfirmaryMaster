@@ -4,12 +4,24 @@
 		<form @submit.prevent="submitForm">
 			<div class="form-control mb-4">
 				<label class="label">
-					<span class="label-text">Patient Name</span>
+					<span class="label-text">Patient First Name</span>
 				</label>
 				<input
-					v-model="patientName"
+					v-model="patientFirstName"
 					type="text"
-					placeholder="Enter patient name"
+					placeholder="Enter patient first name"
+					class="input input-bordered"
+					required
+				/>
+			</div>
+			<div class="form-control mb-4">
+				<label class="label">
+					<span class="label-text">Patient Last Name</span>
+				</label>
+				<input
+					v-model="patientLastName"
+					type="text"
+					placeholder="Enter patient last name"
 					class="input input-bordered"
 					required
 				/>
@@ -104,7 +116,8 @@ const token = localStorage.getItem('authToken'); // Retrieve token from local st
 export default {
 	data() {
 		return {
-			patientName: '',
+			patientFirstName: '',
+			patientLastName: '',
 			medicineBatches: [], // List of medicine batches
 			selectedMedicines: [], // List of selected medicines with amounts
 			doctorName: '', // Added doctor name field
@@ -161,7 +174,8 @@ export default {
 		async submitForm() {
 			try {
 				const payload = {
-					patient_name: this.patientName, // Send patient name instead of ID
+					patient_first_name: this.patientFirstName,
+					patient_last_name: this.patientLastName,
 					items: this.selectedMedicines.map((med) => ({
 						batch_id: med.batchId, // Send batch ID instead of medicine ID
 						quantity: med.amount, // Send quantity
