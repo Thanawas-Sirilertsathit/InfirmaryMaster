@@ -35,6 +35,7 @@
 						<tr>
 							<th class="px-4 py-2">Batch ID</th>
 							<th class="px-4 py-2">Medicine Name</th>
+							<th class="px-4 py-2">Expiration Date</th>
 							<th class="px-4 py-2">Available Amount</th>
 							<th class="px-4 py-2">Amount to Add</th>
 							<th class="px-4 py-2">Actions</th>
@@ -44,6 +45,9 @@
 						<tr v-for="batch in medicineBatches" :key="batch.id">
 							<td class="border px-4 py-2">{{ batch.id }}</td>
 							<td class="border px-4 py-2">{{ batch.name }}</td>
+							<td class="border px-4 py-2">
+								{{ formatDate(batch.expirationDate) }}
+							</td>
 							<td class="border px-4 py-2">
 								{{ batch.availableAmount }}
 							</td>
@@ -145,12 +149,20 @@ export default {
 				this.medicineBatches = response.data.results.map((batch) => ({
 					id: batch.id,
 					name: batch.medicine_name,
+					expirationDate: batch.expiration_date,
 					availableAmount: batch.quantity,
 					amountToAdd: 0, // Default amount to add
 				}));
 			} catch (error) {
 				console.error('Error fetching medicine batches:', error);
 			}
+		},
+		formatDate(value) {
+			if (!value) {
+				return '-';
+			}
+
+			return new Date(value).toLocaleDateString();
 		},
 		addMedicine(batch) {
 			if (
