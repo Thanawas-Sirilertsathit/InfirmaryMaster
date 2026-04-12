@@ -64,5 +64,6 @@ export default {
 	height: auto;
 	object-fit: contain;
 	margin-bottom: 1rem;
+	border-radius: 1.25rem;
 }
 </style>

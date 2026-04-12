@@ -1,7 +1,7 @@
 <template>
 	<div class="min-h-screen bg-base-200 px-4 py-16">
 		<div
-			class="mx-auto max-w-2xl rounded-2xl border border-base-300 bg-base-100 p-8 shadow-xl"
+			class="unauthorized-card mx-auto max-w-2xl rounded-2xl border border-base-300 bg-base-100 p-8 shadow-xl"
 		>
 			<div
 				class="mb-6 inline-flex rounded-full border border-error/30 bg-error/10 px-3 py-1 text-sm font-semibold text-error"
@@ -101,9 +101,22 @@ export default {
 </script>
 
 <style scoped>
+.unauthorized-card {
+	transition:
+		transform 0.18s ease,
+		box-shadow 0.18s ease,
+		border-color 0.18s ease;
+}
+
+.unauthorized-card:hover {
+	transform: translateY(-1px);
+	border-color: #fda4af;
+	box-shadow: 0 12px 24px rgba(244, 63, 94, 0.14);
+}
 .unauthorized-image {
 	max-width: min(100%, 16rem);
 	height: auto;
 	object-fit: contain;
+	border-radius: 1.25rem;
 }
 </style>

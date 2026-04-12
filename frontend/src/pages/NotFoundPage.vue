@@ -1,7 +1,7 @@
 <template>
 	<div class="min-h-screen bg-base-200 px-4 py-16">
 		<div
-			class="mx-auto max-w-2xl rounded-2xl border border-base-300 bg-base-100 p-8 shadow-xl"
+			class="not-found-card mx-auto max-w-2xl rounded-2xl border border-base-300 bg-base-100 p-8 shadow-xl"
 		>
 			<div
 				class="mb-6 inline-flex rounded-full border border-base-300 bg-base-200 px-3 py-1 text-sm font-semibold text-base-content/80"
@@ -47,9 +47,22 @@ export default {
 </script>
 
 <style scoped>
+.not-found-card {
+	transition:
+		transform 0.18s ease,
+		box-shadow 0.18s ease,
+		border-color 0.18s ease;
+}
+
+.not-found-card:hover {
+	transform: translateY(-1px);
+	border-color: #fda4af;
+	box-shadow: 0 12px 24px rgba(244, 63, 94, 0.14);
+}
 .not-found-image {
 	max-width: min(100%, 18rem);
 	height: auto;
 	object-fit: contain;
+	border-radius: 1.25rem;
 }
 </style>
