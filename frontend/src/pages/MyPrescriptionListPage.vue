@@ -1,8 +1,17 @@
 <template>
 	<div class="patient-prescription-list-page">
-		<header class="text-center py-10">
-			<h1 class="text-4xl font-bold text-primary">My Prescriptions</h1>
-			<p class="text-secondary mt-4">View your prescriptions only.</p>
+		<header
+			class="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 py-10 md:flex-row md:items-start md:justify-between"
+		>
+			<div class="text-center md:text-left">
+				<h1 class="text-4xl font-bold text-primary">
+					My Prescriptions
+				</h1>
+				<p class="text-secondary mt-4">View your prescriptions only.</p>
+			</div>
+			<button type="button" class="btn btn-outline" @click="logoutUser">
+				Log Out
+			</button>
 		</header>
 		<div
 			class="form-control mb-6 max-w-4xl mx-auto flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
@@ -135,8 +144,29 @@ export default {
 		this.fetchPrescriptions();
 	},
 	methods: {
+		clearStoredAuth() {
+			localStorage.removeItem('authToken');
+			localStorage.removeItem('authUser');
+			localStorage.removeItem('refreshToken');
+		},
 		applySearch() {
 			this.fetchPrescriptions(1);
+		},
+		async logoutUser() {
+			const refreshToken = localStorage.getItem('refreshToken');
+
+			try {
+				if (refreshToken) {
+					await axios.post('http://localhost:8000/api/auth/logout/', {
+						refresh: refreshToken,
+					});
+				}
+			} catch (error) {
+				console.error('Logout failed:', error);
+			} finally {
+				this.clearStoredAuth();
+				this.$router.push('/');
+			}
 		},
 		changePage(page) {
 			if (

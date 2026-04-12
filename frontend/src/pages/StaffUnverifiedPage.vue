@@ -37,13 +37,31 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
 	name: 'StaffUnverifiedPage',
 	methods: {
-		logoutUser() {
+		clearStoredAuth() {
 			localStorage.removeItem('authToken');
 			localStorage.removeItem('authUser');
-			this.$router.push('/login');
+			localStorage.removeItem('refreshToken');
+		},
+		async logoutUser() {
+			const refreshToken = localStorage.getItem('refreshToken');
+
+			try {
+				if (refreshToken) {
+					await axios.post('http://localhost:8000/api/auth/logout/', {
+						refresh: refreshToken,
+					});
+				}
+			} catch (error) {
+				console.error('Logout failed:', error);
+			} finally {
+				this.clearStoredAuth();
+				this.$router.push('/');
+			}
 		},
 	},
 };

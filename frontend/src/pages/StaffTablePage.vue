@@ -1,8 +1,19 @@
 <template>
 	<div class="staff-table-page">
-		<header class="text-center py-10">
-			<h1 class="text-4xl font-bold text-primary">Staff Management</h1>
-			<p class="text-secondary mt-4">Verify and manage staff accounts.</p>
+		<header
+			class="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 py-10 md:flex-row md:items-start md:justify-between"
+		>
+			<div class="text-center md:text-left">
+				<h1 class="text-4xl font-bold text-primary">
+					Staff Management
+				</h1>
+				<p class="text-secondary mt-4">
+					Verify and manage staff accounts.
+				</p>
+			</div>
+			<button type="button" class="btn btn-outline" @click="logoutUser">
+				Log Out
+			</button>
 		</header>
 		<table
 			class="table-auto w-full max-w-4xl mx-auto bg-white shadow-md rounded"
@@ -76,12 +87,33 @@ export default {
 		this.fetchStaff();
 	},
 	methods: {
+		clearStoredAuth() {
+			localStorage.removeItem('authToken');
+			localStorage.removeItem('authUser');
+			localStorage.removeItem('refreshToken');
+		},
 		getStaffName(staff) {
 			return (
 				[staff.first_name, staff.last_name].filter(Boolean).join(' ') ||
 				staff.username ||
 				'-'
 			);
+		},
+		async logoutUser() {
+			const refreshToken = localStorage.getItem('refreshToken');
+
+			try {
+				if (refreshToken) {
+					await axios.post('http://localhost:8000/api/auth/logout/', {
+						refresh: refreshToken,
+					});
+				}
+			} catch (error) {
+				console.error('Logout failed:', error);
+			} finally {
+				this.clearStoredAuth();
+				this.$router.push('/');
+			}
 		},
 		async fetchStaff() {
 			try {

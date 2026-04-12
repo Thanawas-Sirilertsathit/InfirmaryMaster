@@ -6,13 +6,22 @@ const routes = [
 	{ path: '/register', component: () => import('../pages/RegisterPage.vue') },
 	{ path: '/login', component: () => import('../pages/LoginPage.vue') },
 	{
+		path: '/unauthorized',
+		component: () => import('../pages/UnauthorizedPage.vue'),
+	},
+	{
 		path: '/staff/unverified',
+		meta: { requiresAuth: true, allowedRoles: ['staff'] },
 		component: () => import('../pages/StaffUnverifiedPage.vue'),
 	},
 	{
 		path: '/medicine',
 		component: StaffLayout,
-		meta: { requiresVerifiedStaff: true },
+		meta: {
+			requiresAuth: true,
+			allowedRoles: ['staff', 'admin'],
+			requiresVerifiedStaff: true,
+		},
 		children: [
 			{
 				path: '',
@@ -27,7 +36,11 @@ const routes = [
 	{
 		path: '/inventory',
 		component: StaffLayout,
-		meta: { requiresVerifiedStaff: true },
+		meta: {
+			requiresAuth: true,
+			allowedRoles: ['staff', 'admin'],
+			requiresVerifiedStaff: true,
+		},
 		children: [
 			{
 				path: '',
@@ -38,7 +51,11 @@ const routes = [
 	{
 		path: '/prescriptions',
 		component: StaffLayout,
-		meta: { requiresVerifiedStaff: true },
+		meta: {
+			requiresAuth: true,
+			allowedRoles: ['staff', 'admin'],
+			requiresVerifiedStaff: true,
+		},
 		children: [
 			{
 				path: '',
@@ -49,23 +66,41 @@ const routes = [
 	},
 	{
 		path: '/my-prescriptions',
+		meta: { requiresAuth: true, allowedRoles: ['patient'] },
 		component: () => import('../pages/MyPrescriptionListPage.vue'),
 	},
 	{
 		path: '/my-prescriptions/:id',
+		meta: { requiresAuth: true, allowedRoles: ['patient'] },
 		component: () => import('../pages/MyPrescriptionDetailPage.vue'),
 	},
 	{
 		path: '/prescription/:id',
-		meta: { requiresVerifiedStaff: true },
+		meta: {
+			requiresAuth: true,
+			allowedRoles: ['staff', 'admin'],
+			requiresVerifiedStaff: true,
+		},
 		component: () => import('../pages/PatientPrescriptionDetailPage.vue'),
 	},
 	{
 		path: '/prescription/create',
-		meta: { requiresVerifiedStaff: true },
+		meta: {
+			requiresAuth: true,
+			allowedRoles: ['staff', 'admin'],
+			requiresVerifiedStaff: true,
+		},
 		component: () => import('../pages/CreatePrescriptionPage.vue'),
 	},
-	{ path: '/staff', component: () => import('../pages/StaffTablePage.vue') },
+	{
+		path: '/staff',
+		meta: { requiresAuth: true, allowedRoles: ['admin'] },
+		component: () => import('../pages/StaffTablePage.vue'),
+	},
+	{
+		path: '/:pathMatch(.*)*',
+		component: () => import('../pages/NotFoundPage.vue'),
+	},
 ];
 
 const router = createRouter({
@@ -76,6 +111,19 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
 	const storedUser = localStorage.getItem('authUser');
 	const user = storedUser ? JSON.parse(storedUser) : null;
+	const allowedRoles = Array.isArray(to.meta.allowedRoles)
+		? to.meta.allowedRoles
+		: [];
+
+	if (to.meta.requiresAuth && !user) {
+		next('/login');
+		return;
+	}
+
+	if (allowedRoles.length && !allowedRoles.includes(user?.role)) {
+		next('/unauthorized');
+		return;
+	}
 
 	if (
 		to.meta.requiresVerifiedStaff &&
@@ -91,17 +139,7 @@ router.beforeEach((to, from, next) => {
 		user?.role === 'staff' &&
 		user?.verified
 	) {
-		next('/inventory');
-		return;
-	}
-
-	if (
-		user?.role === 'patient' &&
-		(to.path === '/prescriptions' ||
-			to.path === '/prescription/create' ||
-			to.path.startsWith('/prescription/'))
-	) {
-		next('/my-prescriptions');
+		next('/unauthorized');
 		return;
 	}
 

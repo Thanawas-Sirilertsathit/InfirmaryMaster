@@ -20,29 +20,39 @@
 			</ul>
 
 			<div class="notification-area">
-				<button
-					type="button"
-					class="notification-button"
-					@click="toggleNotifications"
-				>
-					<svg
-						class="notification-icon"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="1.8"
-						stroke-linecap="round"
-						stroke-linejoin="round"
+				<div class="nav-actions">
+					<button
+						type="button"
+						class="notification-button"
+						@click="toggleNotifications"
 					>
-						<path
-							d="M15 17h5l-1.4-1.4a2 2 0 0 1-.6-1.4V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"
-						/>
-						<path d="M9 17a3 3 0 0 0 6 0" />
-					</svg>
-					<span v-if="unreadCount" class="notification-badge">
-						{{ unreadCount }}
-					</span>
-				</button>
+						<svg
+							class="notification-icon"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.8"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path
+								d="M15 17h5l-1.4-1.4a2 2 0 0 1-.6-1.4V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"
+							/>
+							<path d="M9 17a3 3 0 0 0 6 0" />
+						</svg>
+						<span v-if="unreadCount" class="notification-badge">
+							{{ unreadCount }}
+						</span>
+					</button>
+
+					<button
+						type="button"
+						class="logout-button"
+						@click="logoutUser"
+					>
+						Log Out
+					</button>
+				</div>
 
 				<div v-if="showNotifications" class="notification-panel">
 					<div class="notification-panel-header">
@@ -145,6 +155,11 @@ export default {
 		}
 	},
 	methods: {
+		clearStoredAuth() {
+			localStorage.removeItem('authToken');
+			localStorage.removeItem('authUser');
+			localStorage.removeItem('refreshToken');
+		},
 		async fetchNotifications() {
 			this.isLoadingNotifications = true;
 			try {
@@ -188,6 +203,23 @@ export default {
 			this.showNotifications = !this.showNotifications;
 			if (this.showNotifications) {
 				this.fetchNotifications();
+			}
+		},
+		async logoutUser() {
+			const refreshToken = localStorage.getItem('refreshToken');
+
+			try {
+				if (refreshToken) {
+					await axios.post('http://localhost:8000/api/auth/logout/', {
+						refresh: refreshToken,
+					});
+				}
+			} catch (error) {
+				console.error('Logout failed:', error);
+			} finally {
+				this.clearStoredAuth();
+				this.showNotifications = false;
+				this.$router.push('/');
 			}
 		},
 		formatDateTime(value) {
@@ -262,6 +294,12 @@ export default {
 	flex-shrink: 0;
 }
 
+.nav-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
 .notification-button {
 	position: relative;
 	display: inline-flex;
@@ -283,6 +321,32 @@ export default {
 .notification-button:hover {
 	transform: translateY(-1px);
 	border-color: #fda4af;
+	box-shadow: 0 12px 24px rgba(244, 63, 94, 0.14);
+}
+
+.logout-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 3.25rem;
+	padding: 0 1rem;
+	border-radius: 14px;
+	border: 1px solid #fecdd3;
+	background: #fff1f2;
+	color: #9f1239;
+	font-weight: 700;
+	box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+	transition:
+		transform 0.18s ease,
+		box-shadow 0.18s ease,
+		border-color 0.18s ease,
+		background-color 0.18s ease;
+}
+
+.logout-button:hover {
+	transform: translateY(-1px);
+	border-color: #fb7185;
+	background: #ffe4e6;
 	box-shadow: 0 12px 24px rgba(244, 63, 94, 0.14);
 }
 
@@ -430,8 +494,16 @@ export default {
 		width: 100%;
 	}
 
-	.notification-button {
+	.nav-actions {
 		width: 100%;
+	}
+
+	.notification-button {
+		flex: 0 0 auto;
+	}
+
+	.logout-button {
+		flex: 1 1 auto;
 	}
 
 	.notification-panel {

@@ -65,16 +65,20 @@ export default {
 
 				// Extract and store the access token in localStorage
 				const accessToken = response.data.access;
+				const refreshToken = response.data.refresh;
 				const authenticatedUser = response.data.user;
-				if (accessToken) {
+				if (accessToken && refreshToken) {
 					localStorage.setItem('authToken', accessToken);
+					localStorage.setItem('refreshToken', refreshToken);
 					localStorage.setItem(
 						'authUser',
 						JSON.stringify(authenticatedUser),
 					);
 					console.log('Access token stored in localStorage');
 				} else {
-					throw new Error('Access token is missing in the response.');
+					throw new Error(
+						'Authentication tokens are missing in the response.',
+					);
 				}
 
 				// Extract user role from response

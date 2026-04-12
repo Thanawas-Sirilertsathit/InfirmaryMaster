@@ -13,12 +13,26 @@
 			<p>{{ error }}</p>
 		</div>
 		<div v-else>
-			<div class="form-control mb-6 max-w-md mx-auto">
+			<div
+				class="mb-6 mx-auto flex max-w-2xl flex-col gap-3 md:flex-row md:items-center"
+			>
 				<input
+					v-model.trim="searchQuery"
 					type="text"
-					placeholder="Search medicines..."
-					class="input input-bordered"
+					placeholder="Search medicines by name or description..."
+					class="input input-bordered w-full md:flex-grow"
+					@keyup.enter="applySearch"
 				/>
+				<button class="btn btn-outline" @click="applySearch">
+					Search
+				</button>
+				<button
+					v-if="searchQuery"
+					class="btn border-black bg-white text-red-600 hover:border-black hover:bg-red-50 hover:text-red-700"
+					@click="clearSearch"
+				>
+					Clear
+				</button>
 			</div>
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
 				<div
@@ -64,6 +78,31 @@
 				@add-medicine="addMedicine"
 				@close="showAddModal = false"
 			/>
+
+			<div
+				class="mx-auto mt-6 flex max-w-6xl items-center justify-between gap-4 px-4"
+			>
+				<p class="text-sm text-gray-600">
+					Page {{ currentPage }} of {{ totalPages }}
+					<span v-if="totalCount">({{ totalCount }} medicines)</span>
+				</p>
+				<div class="flex gap-2">
+					<button
+						class="btn btn-outline btn-sm"
+						@click="changePage(currentPage - 1)"
+						:disabled="!hasPrevious"
+					>
+						Previous
+					</button>
+					<button
+						class="btn btn-outline btn-sm"
+						@click="changePage(currentPage + 1)"
+						:disabled="!hasNext"
+					>
+						Next
+					</button>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -71,7 +110,7 @@
 <script>
 import axios from 'axios';
 import AddMedicineModal from '@/components/modals/AddMedicineModal.vue';
-import { ref, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 export default {
 	name: 'MedicineListPage',
@@ -83,8 +122,27 @@ export default {
 		const loading = ref(true);
 		const error = ref(null);
 		const showAddModal = ref(false);
+		const searchQuery = ref('');
+		const currentPage = ref(1);
+		const totalCount = ref(0);
+		const hasNext = ref(false);
+		const hasPrevious = ref(false);
+		const pageSize = ref(20);
 
-		const fetchMedicines = async () => {
+		const mapMedicines = (results) =>
+			results.map((medicine) => ({
+				id: medicine.id,
+				name: medicine.name,
+				description: medicine.description,
+				category: medicine.category_name,
+				dosage: medicine.dosage,
+				minimum_stock: medicine.minimum_stock,
+				image: medicine.image || 'https://via.placeholder.com/150',
+				side_effects:
+					medicine.side_effects || 'No side effects listed.',
+			}));
+
+		const fetchMedicines = async (page = 1) => {
 			loading.value = true;
 			error.value = null;
 			medicines.value = []; // Clear the medicines array before fetching new data
@@ -97,8 +155,12 @@ export default {
 					);
 				}
 				const response = await axios.get(
-					'http://localhost:8000/api/medicines/list/?page=1',
+					'http://localhost:8000/api/medicines/list/',
 					{
+						params: {
+							page,
+							search: searchQuery.value || undefined,
+						},
 						headers: {
 							Accept: 'application/json',
 							Authorization: `Bearer ${token}`, // Include the token in the Authorization header
@@ -107,18 +169,13 @@ export default {
 				); // Updated to match Swagger example
 				console.log('API response:', response.data); // Debugging log
 				if (Array.isArray(response.data.results)) {
-					medicines.value = response.data.results.map((medicine) => ({
-						id: medicine.id,
-						name: medicine.name,
-						description: medicine.description,
-						category: medicine.category_name,
-						dosage: medicine.dosage,
-						minimum_stock: medicine.minimum_stock,
-						image:
-							medicine.image || 'https://via.placeholder.com/150',
-						side_effects:
-							medicine.side_effects || 'No side effects listed.',
-					}));
+					medicines.value = mapMedicines(response.data.results);
+					currentPage.value = page;
+					totalCount.value = Number.isInteger(response.data.count)
+						? response.data.count
+						: response.data.results.length;
+					hasNext.value = Boolean(response.data.next);
+					hasPrevious.value = Boolean(response.data.previous);
 					console.log('Mapped medicines:', medicines.value); // Debugging log
 				} else {
 					error.value = 'Invalid data received from the server.';
@@ -131,6 +188,32 @@ export default {
 			} finally {
 				loading.value = false;
 			}
+		};
+
+		const applySearch = () => {
+			fetchMedicines(1);
+		};
+
+		const clearSearch = () => {
+			if (!searchQuery.value) {
+				return;
+			}
+
+			searchQuery.value = '';
+			fetchMedicines(1);
+		};
+
+		const changePage = (page) => {
+			const totalPages = Math.max(
+				1,
+				Math.ceil(totalCount.value / pageSize.value),
+			);
+
+			if (page < 1 || page > totalPages || page === currentPage.value) {
+				return;
+			}
+
+			fetchMedicines(page);
 		};
 
 		const addMedicine = async (newMedicine) => {
@@ -151,7 +234,7 @@ export default {
 						},
 					},
 				);
-				await fetchMedicines();
+				await fetchMedicines(1);
 			} catch (err) {
 				error.value = 'Failed to add medicine. Please try again later.';
 				console.error(err);
@@ -166,7 +249,18 @@ export default {
 			loading,
 			error,
 			showAddModal,
+			searchQuery,
+			currentPage,
+			totalCount,
+			hasNext,
+			hasPrevious,
+			totalPages: computed(() =>
+				Math.max(1, Math.ceil(totalCount.value / pageSize.value)),
+			),
 			fetchMedicines,
+			applySearch,
+			clearSearch,
+			changePage,
 			addMedicine,
 		};
 	},

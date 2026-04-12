@@ -131,6 +131,7 @@ export default {
 				);
 				console.log('Registration successful:', response.data);
 				localStorage.setItem('authToken', response.data.access);
+				localStorage.setItem('refreshToken', response.data.refresh);
 				localStorage.setItem(
 					'authUser',
 					JSON.stringify(response.data.user),

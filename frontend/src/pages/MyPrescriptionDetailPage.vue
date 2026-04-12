@@ -6,9 +6,20 @@
 			</h1>
 		</header>
 		<div class="max-w-4xl mx-auto px-4 pb-10">
-			<button @click="goBackToPrescriptions" class="btn btn-outline mb-6">
-				Back to Prescriptions
-			</button>
+			<div
+				class="mb-6 flex flex-col gap-3 sm:flex-row sm:justify-between"
+			>
+				<button @click="goBackToPrescriptions" class="btn btn-outline">
+					Back to Prescriptions
+				</button>
+				<button
+					type="button"
+					class="btn btn-outline"
+					@click="logoutUser"
+				>
+					Log Out
+				</button>
+			</div>
 
 			<div
 				v-if="loading"
@@ -196,8 +207,29 @@ export default {
 		this.fetchPrescriptionDetails();
 	},
 	methods: {
+		clearStoredAuth() {
+			localStorage.removeItem('authToken');
+			localStorage.removeItem('authUser');
+			localStorage.removeItem('refreshToken');
+		},
 		goBackToPrescriptions() {
 			this.$router.push('/my-prescriptions');
+		},
+		async logoutUser() {
+			const refreshToken = localStorage.getItem('refreshToken');
+
+			try {
+				if (refreshToken) {
+					await axios.post('http://localhost:8000/api/auth/logout/', {
+						refresh: refreshToken,
+					});
+				}
+			} catch (error) {
+				console.error('Logout failed:', error);
+			} finally {
+				this.clearStoredAuth();
+				this.$router.push('/');
+			}
 		},
 		formatDateTime(value) {
 			if (!value) {
