@@ -1,11 +1,5 @@
 from django.contrib import admin
-from .models import Medicine, MedicineCategory
-
-
-@admin.register(MedicineCategory)
-class MedicineCategoryAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',)
+from .models import Medicine
 
 
 @admin.register(Medicine)

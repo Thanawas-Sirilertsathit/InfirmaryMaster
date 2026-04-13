@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import apiManager from '@/api/api_manager';
 
 export default {
 	name: 'LoginPage',
@@ -47,23 +47,18 @@ export default {
 		return {
 			emailOrUsername: '',
 			password: '',
-			errorMessage: '', // Add error message state
+			errorMessage: '',
 		};
 	},
 	methods: {
 		async loginUser() {
-			this.errorMessage = ''; // Reset error message
+			this.errorMessage = '';
 			try {
-				const response = await axios.post(
-					'http://localhost:8000/api/auth/login/',
-					{
-						username: this.emailOrUsername,
-						password: this.password,
-					},
-				);
-				console.log('Login successful:', response.data);
+				const response = await apiManager.post('/api/auth/login/', {
+					username: this.emailOrUsername,
+					password: this.password,
+				});
 
-				// Extract and store the access token in localStorage
 				const accessToken = response.data.access;
 				const refreshToken = response.data.refresh;
 				const authenticatedUser = response.data.user;
@@ -74,17 +69,14 @@ export default {
 						'authUser',
 						JSON.stringify(authenticatedUser),
 					);
-					console.log('Access token stored in localStorage');
 				} else {
 					throw new Error(
 						'Authentication tokens are missing in the response.',
 					);
 				}
 
-				// Extract user role from response
 				const userRole = authenticatedUser.role;
 
-				// Navigate based on role
 				if (userRole === 'admin') {
 					this.$router.push('/staff');
 				} else if (userRole === 'staff') {
@@ -96,19 +88,17 @@ export default {
 				} else if (userRole === 'patient') {
 					this.$router.push('/my-prescriptions');
 				} else {
-					this.$router.push('/'); // Default fallback
+					this.$router.push('/');
 				}
 			} catch (error) {
 				console.error('Login failed:', error);
 				this.errorMessage =
 					error.response?.data?.error ||
-					'Login failed. Please try again.'; // Display error message
+					'Login failed. Please try again.';
 			}
 		},
 	},
 };
 </script>
 
-<style scoped>
-/* Add any specific styles for the login page here */
-</style>
+<style scoped></style>

@@ -1,19 +1,8 @@
 from rest_framework import generics
 from django.db.models import Q
-from .models import Medicine, MedicineCategory
-from .serializers import MedicineSerializer, MedicineCategorySerializer
+from .models import Medicine
+from .serializers import MedicineSerializer
 from users.permissions import IsStaffOrAdmin
-
-
-class MedicineCategoryCreateView(generics.CreateAPIView):
-    queryset = MedicineCategory.objects.all()
-    serializer_class = MedicineCategorySerializer
-    permission_classes = [IsStaffOrAdmin]
-
-
-class MedicineCategoryListView(generics.ListAPIView):
-    queryset = MedicineCategory.objects.all()
-    serializer_class = MedicineCategorySerializer
 
 
 class MedicineCreateView(generics.CreateAPIView):

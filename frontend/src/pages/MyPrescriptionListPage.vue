@@ -117,9 +117,7 @@
 </template>
 
 <script>
-import axios from 'axios';
-
-const token = localStorage.getItem('authToken');
+import apiManager from '@/api/api_manager';
 
 export default {
 	name: 'MyPrescriptionListPage',
@@ -157,7 +155,7 @@ export default {
 
 			try {
 				if (refreshToken) {
-					await axios.post('http://localhost:8000/api/auth/logout/', {
+					await apiManager.post('/api/auth/logout/', {
 						refresh: refreshToken,
 					});
 				}
@@ -232,17 +230,14 @@ export default {
 		},
 		async fetchPrescriptions(page = 1) {
 			try {
-				const response = await axios.get(
-					'http://localhost:8000/api/prescriptions/mine/',
+				const response = await apiManager.get(
+					'/api/prescriptions/mine/',
 					{
 						params: {
 							page,
 							search: this.searchQuery || undefined,
 						},
-						headers: {
-							Accept: 'application/json',
-							Authorization: `Bearer ${token}`,
-						},
+						headers: apiManager.getAuthHeaders(),
 					},
 				);
 				const results = Array.isArray(response.data?.results)

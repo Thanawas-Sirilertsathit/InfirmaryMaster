@@ -39,31 +39,3 @@ export default {
 	name: 'LandingPage',
 };
 </script>
-
-<style scoped>
-.landing-copy-block {
-	padding: 2rem;
-	border: 1px solid #e5e7eb;
-	border-radius: 1.5rem;
-	background: rgba(255, 255, 255, 0.92);
-	box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
-	transition:
-		transform 0.18s ease,
-		box-shadow 0.18s ease,
-		border-color 0.18s ease;
-}
-
-.landing-copy-block:hover {
-	transform: translateY(-1px);
-	border-color: #fda4af;
-	box-shadow: 0 12px 24px rgba(244, 63, 94, 0.14);
-}
-
-.landing-gif {
-	max-width: min(100%, 24rem);
-	height: auto;
-	object-fit: contain;
-	margin-bottom: 1rem;
-	border-radius: 1.25rem;
-}
-</style>

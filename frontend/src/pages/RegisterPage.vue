@@ -96,7 +96,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import apiManager from '@/api/api_manager';
 
 export default {
 	name: 'RegisterPage',
@@ -118,18 +118,14 @@ export default {
 				return;
 			}
 			try {
-				const response = await axios.post(
-					'http://localhost:8000/api/auth/register/',
-					{
-						username: this.username,
-						first_name: this.firstName,
-						last_name: this.lastName,
-						email: this.email,
-						password: this.password,
-						role: this.role,
-					},
-				);
-				console.log('Registration successful:', response.data);
+				const response = await apiManager.post('/api/auth/register/', {
+					username: this.username,
+					first_name: this.firstName,
+					last_name: this.lastName,
+					email: this.email,
+					password: this.password,
+					role: this.role,
+				});
 				localStorage.setItem('authToken', response.data.access);
 				localStorage.setItem('refreshToken', response.data.refresh);
 				localStorage.setItem(
@@ -137,7 +133,6 @@ export default {
 					JSON.stringify(response.data.user),
 				);
 
-				// Navigate based on selected role
 				if (this.role === 'staff') {
 					this.$router.push(
 						response.data.user.verified
@@ -147,7 +142,7 @@ export default {
 				} else if (this.role === 'patient') {
 					this.$router.push('/my-prescriptions');
 				} else {
-					this.$router.push('/'); // Default fallback
+					this.$router.push('/');
 				}
 			} catch (error) {
 				console.error('Registration failed:', error);
@@ -158,6 +153,4 @@ export default {
 };
 </script>
 
-<style scoped>
-/* Add any specific styles for the register page here */
-</style>
+<style scoped></style>

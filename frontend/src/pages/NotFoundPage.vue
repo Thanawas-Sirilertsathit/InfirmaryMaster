@@ -45,24 +45,3 @@ export default {
 	},
 };
 </script>
-
-<style scoped>
-.not-found-card {
-	transition:
-		transform 0.18s ease,
-		box-shadow 0.18s ease,
-		border-color 0.18s ease;
-}
-
-.not-found-card:hover {
-	transform: translateY(-1px);
-	border-color: #fda4af;
-	box-shadow: 0 12px 24px rgba(244, 63, 94, 0.14);
-}
-.not-found-image {
-	max-width: min(100%, 18rem);
-	height: auto;
-	object-fit: contain;
-	border-radius: 1.25rem;
-}
-</style>

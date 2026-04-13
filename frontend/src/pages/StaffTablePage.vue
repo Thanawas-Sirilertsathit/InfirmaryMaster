@@ -67,9 +67,7 @@
 
 <script>
 import ConfirmVerifyStaffModal from '@/components/modals/ConfirmVerifyStaffModal.vue';
-import axios from 'axios';
-
-const token = localStorage.getItem('authToken');
+import apiManager from '@/api/api_manager';
 
 export default {
 	name: 'StaffTablePage',
@@ -104,7 +102,7 @@ export default {
 
 			try {
 				if (refreshToken) {
-					await axios.post('http://localhost:8000/api/auth/logout/', {
+					await apiManager.post('/api/auth/logout/', {
 						refresh: refreshToken,
 					});
 				}
@@ -117,15 +115,9 @@ export default {
 		},
 		async fetchStaff() {
 			try {
-				const response = await axios.get(
-					'http://localhost:8000/api/auth/staff/',
-					{
-						headers: {
-							Accept: 'application/json',
-							Authorization: `Bearer ${token}`,
-						},
-					},
-				);
+				const response = await apiManager.get('/api/auth/staff/', {
+					headers: apiManager.getAuthHeaders(),
+				});
 				this.staffList = response.data.map((staff) => ({
 					...staff,
 					name: this.getStaffName(staff),
@@ -149,14 +141,11 @@ export default {
 			}
 
 			try {
-				await axios.post(
-					'http://localhost:8000/api/auth/staff/verify/',
+				await apiManager.post(
+					'/api/auth/staff/verify/',
 					{ id: this.staffToVerify.id },
 					{
-						headers: {
-							Accept: 'application/json',
-							Authorization: `Bearer ${token}`,
-						},
+						headers: apiManager.getAuthHeaders(),
 					},
 				);
 				await this.fetchStaff();
@@ -170,6 +159,4 @@ export default {
 };
 </script>
 
-<style scoped>
-/* Add any specific styles for the staff table page here */
-</style>
+<style scoped></style>

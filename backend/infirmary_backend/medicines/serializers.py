@@ -1,11 +1,5 @@
 from rest_framework import serializers
-from .models import Medicine, MedicineCategory
-
-
-class MedicineCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MedicineCategory
-        fields = ['id', 'name', 'description']
+from .models import Medicine
 
 
 class MedicineSerializer(serializers.ModelSerializer):

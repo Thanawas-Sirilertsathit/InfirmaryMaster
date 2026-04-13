@@ -33,7 +33,6 @@ class ReportsStatusView(APIView):
     permission_classes = [IsStaffOrAdmin]
 
     def get(self, request):
-        # For now, just return a placeholder. In production, track last run times.
         return Response({
             'last_low_stock_check': 'Not implemented yet',
             'last_expiration_check': 'Not implemented yet'

@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import apiManager from '@/api/api_manager';
 
 export default {
 	name: 'StaffUnverifiedPage',
@@ -52,7 +52,7 @@ export default {
 
 			try {
 				if (refreshToken) {
-					await axios.post('http://localhost:8000/api/auth/logout/', {
+					await apiManager.post('/api/auth/logout/', {
 						refresh: refreshToken,
 					});
 				}

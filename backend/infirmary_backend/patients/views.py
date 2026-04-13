@@ -40,7 +40,6 @@ class PatientPrescriptionsView(generics.ListAPIView):
     def get_queryset(self):
         patient_id = self.kwargs['patient_id']
         if self.request.user.is_patient:
-            # Patients can only see their own
             if not Patient.objects.filter(id=patient_id, user=self.request.user).exists():
                 return Patient.objects.none()
         return Patient.objects.filter(id=patient_id)

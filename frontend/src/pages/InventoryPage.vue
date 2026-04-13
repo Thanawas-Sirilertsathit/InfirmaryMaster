@@ -66,7 +66,6 @@
 					</div>
 				</div>
 
-				<!-- Add Medicine Batch Card -->
 				<div
 					class="inventory-card card flex h-full min-h-80 items-center justify-center bg-base-100 shadow-md"
 				>
@@ -130,7 +129,7 @@
 <script>
 import AddMedicineBatchModal from '@/components/modals/AddMedicineBatchModal.vue';
 import ConfirmRemoveModal from '@/components/modals/ConfirmRemoveModal.vue';
-import axios from 'axios';
+import apiManager from '@/api/api_manager';
 
 export default {
 	name: 'InventoryPage',
@@ -162,18 +161,7 @@ export default {
 	},
 	methods: {
 		getAuthHeaders() {
-			const authToken = localStorage.getItem('authToken');
-
-			if (!authToken) {
-				throw new Error(
-					'Authentication token is missing. Please log in.',
-				);
-			}
-
-			return {
-				Accept: 'application/json',
-				Authorization: `Bearer ${authToken}`,
-			};
+			return apiManager.getAuthHeaders();
 		},
 		mapInventory(results) {
 			return results.map((item) => ({
@@ -188,8 +176,8 @@ export default {
 			this.loading = true;
 			this.error = null;
 			try {
-				const response = await axios.get(
-					'http://localhost:8000/api/inventory/batches/list/',
+				const response = await apiManager.get(
+					'/api/inventory/batches/list/',
 					{
 						params: {
 							page,
@@ -223,11 +211,11 @@ export default {
 		},
 		async fetchMedicineList() {
 			try {
-				let nextUrl = 'http://localhost:8000/api/medicines/list/';
+				let nextUrl = '/api/medicines/list/';
 				const medicines = [];
 
 				while (nextUrl) {
-					const response = await axios.get(nextUrl, {
+					const response = await apiManager.get(nextUrl, {
 						headers: this.getAuthHeaders(),
 					});
 					const results = Array.isArray(response.data.results)
@@ -244,19 +232,18 @@ export default {
 			}
 		},
 		removeItem(id) {
-			this.batchToRemove = id; // Set the batch to remove
-			this.showRemoveModal = true; // Show the ConfirmRemoveModal
+			this.batchToRemove = id;
+			this.showRemoveModal = true;
 		},
 		async confirmRemove() {
 			if (this.batchToRemove) {
 				try {
-					const response = await axios.delete(
-						`http://localhost:8000/api/inventory/batches/${this.batchToRemove}/delete/`,
+					await apiManager.delete(
+						`/api/inventory/batches/${this.batchToRemove}/delete/`,
 						{
 							headers: this.getAuthHeaders(),
 						},
 					);
-					console.log('Batch removed successfully:', response.data);
 					const fallbackPage =
 						this.inventory.length === 1 && this.currentPage > 1
 							? this.currentPage - 1
@@ -265,10 +252,10 @@ export default {
 				} catch (error) {
 					console.error('Error removing batch:', error);
 				} finally {
-					this.batchToRemove = null; // Reset the batch to remove
+					this.batchToRemove = null;
 				}
 			}
-			this.showRemoveModal = false; // Close the ConfirmRemoveModal
+			this.showRemoveModal = false;
 		},
 		async addMedicineBatch(batch) {
 			try {
@@ -277,15 +264,9 @@ export default {
 					quantity: batch.amount,
 					expiration_date: batch.expDate,
 				};
-				console.log('Payload to be sent:', payload); // Debugging log
-				const response = await axios.post(
-					'http://localhost:8000/api/inventory/batches/',
-					payload,
-					{
-						headers: this.getAuthHeaders(),
-					},
-				);
-				console.log('Batch added successfully:', response.data);
+				await apiManager.post('/api/inventory/batches/', payload, {
+					headers: this.getAuthHeaders(),
+				});
 				await this.fetchInventory(1);
 			} catch (error) {
 				console.error('Error adding medicine batch:', error);
@@ -321,20 +302,3 @@ export default {
 	},
 };
 </script>
-
-<style scoped>
-.inventory-card {
-	border: 1px solid #e5e7eb;
-	box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-	transition:
-		transform 0.18s ease,
-		box-shadow 0.18s ease,
-		border-color 0.18s ease;
-}
-
-.inventory-card:hover {
-	transform: translateY(-1px);
-	border-color: #fda4af;
-	box-shadow: 0 12px 24px rgba(244, 63, 94, 0.14);
-}
-</style>

@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import apiManager from '@/api/api_manager';
 
 export default {
 	name: 'UnauthorizedPage',
@@ -85,7 +85,7 @@ export default {
 
 			try {
 				if (refreshToken) {
-					await axios.post('http://localhost:8000/api/auth/logout/', {
+					await apiManager.post('/api/auth/logout/', {
 						refresh: refreshToken,
 					});
 				}
@@ -99,24 +99,3 @@ export default {
 	},
 };
 </script>
-
-<style scoped>
-.unauthorized-card {
-	transition:
-		transform 0.18s ease,
-		box-shadow 0.18s ease,
-		border-color 0.18s ease;
-}
-
-.unauthorized-card:hover {
-	transform: translateY(-1px);
-	border-color: #fda4af;
-	box-shadow: 0 12px 24px rgba(244, 63, 94, 0.14);
-}
-.unauthorized-image {
-	max-width: min(100%, 16rem);
-	height: auto;
-	object-fit: contain;
-	border-radius: 1.25rem;
-}
-</style>

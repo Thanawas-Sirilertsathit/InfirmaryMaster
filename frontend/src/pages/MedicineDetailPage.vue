@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import apiManager from '@/api/api_manager';
 import EditMedicineModal from '@/components/modals/EditMedicineModal.vue';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
@@ -81,28 +81,16 @@ export default {
 		const showEditModal = ref(false);
 
 		const getAuthHeaders = () => {
-			const token = localStorage.getItem('authToken');
-			if (!token) {
-				throw new Error(
-					'Authentication token is missing. Please log in.',
-				);
-			}
-
-			return {
-				Authorization: `Bearer ${token}`,
-			};
+			return apiManager.getAuthHeaders();
 		};
 
 		const fetchMedicine = async (id) => {
 			loading.value = true;
 			error.value = null;
 			try {
-				const response = await axios.get(
-					`http://localhost:8000/api/medicines/${id}/`,
-					{
-						headers: getAuthHeaders(),
-					},
-				);
+				const response = await apiManager.get(`/api/medicines/${id}/`, {
+					headers: getAuthHeaders(),
+				});
 				medicine.value = response.data;
 			} catch (err) {
 				error.value =
@@ -117,8 +105,8 @@ export default {
 			error.value = null;
 			try {
 				const medicineId = route.params.id;
-				const response = await axios.put(
-					`http://localhost:8000/api/medicines/${medicineId}/`,
+				const response = await apiManager.put(
+					`/api/medicines/${medicineId}/`,
 					payload,
 					{
 						headers: getAuthHeaders(),
@@ -134,7 +122,7 @@ export default {
 		};
 
 		onMounted(() => {
-			const medicineId = route.params.id; // Get dynamic ID from route params
+			const medicineId = route.params.id;
 			fetchMedicine(medicineId);
 		});
 
@@ -149,6 +137,4 @@ export default {
 };
 </script>
 
-<style scoped>
-/* Add any specific styles for the medicine detail page here */
-</style>
+<style scoped></style>

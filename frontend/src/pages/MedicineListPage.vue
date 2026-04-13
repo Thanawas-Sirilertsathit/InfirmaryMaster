@@ -60,7 +60,6 @@
 					</div>
 				</div>
 
-				<!-- Add Medicine Modal Trigger -->
 				<div
 					class="medicine-card card flex h-full min-h-80 items-center justify-center bg-base-100 shadow-md"
 				>
@@ -108,7 +107,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import apiManager from '@/api/api_manager';
 import AddMedicineModal from '@/components/modals/AddMedicineModal.vue';
 import { computed, onMounted, ref } from 'vue';
 
@@ -145,29 +144,15 @@ export default {
 		const fetchMedicines = async (page = 1) => {
 			loading.value = true;
 			error.value = null;
-			medicines.value = []; // Clear the medicines array before fetching new data
-			console.log('Fetching medicines...'); // Debugging log
+			medicines.value = [];
 			try {
-				const token = localStorage.getItem('authToken'); // Retrieve the token from localStorage
-				if (!token) {
-					throw new Error(
-						'Authentication token is missing. Please log in.',
-					);
-				}
-				const response = await axios.get(
-					'http://localhost:8000/api/medicines/list/',
-					{
-						params: {
-							page,
-							search: searchQuery.value || undefined,
-						},
-						headers: {
-							Accept: 'application/json',
-							Authorization: `Bearer ${token}`, // Include the token in the Authorization header
-						},
+				const response = await apiManager.get('/api/medicines/list/', {
+					params: {
+						page,
+						search: searchQuery.value || undefined,
 					},
-				); // Updated to match Swagger example
-				console.log('API response:', response.data); // Debugging log
+					headers: apiManager.getAuthHeaders(),
+				});
 				if (Array.isArray(response.data.results)) {
 					medicines.value = mapMedicines(response.data.results);
 					currentPage.value = page;
@@ -176,15 +161,14 @@ export default {
 						: response.data.results.length;
 					hasNext.value = Boolean(response.data.next);
 					hasPrevious.value = Boolean(response.data.previous);
-					console.log('Mapped medicines:', medicines.value); // Debugging log
 				} else {
 					error.value = 'Invalid data received from the server.';
-					console.error('Invalid data format:', response.data); // Debugging log
+					console.error('Invalid data format:', response.data);
 				}
 			} catch (err) {
 				error.value =
 					'Failed to load medicines. Please try again later.';
-				console.error('API call failed:', err); // Debugging log
+				console.error('API call failed:', err);
 			} finally {
 				loading.value = false;
 			}
@@ -217,23 +201,10 @@ export default {
 		};
 
 		const addMedicine = async (newMedicine) => {
-			console.log('Adding new medicine:', newMedicine);
 			try {
-				const token = localStorage.getItem('authToken'); // Retrieve the token from localStorage
-				if (!token) {
-					throw new Error(
-						'Authentication token is missing. Please log in.',
-					);
-				}
-				await axios.post(
-					'http://localhost:8000/api/medicines/', // Added trailing slash to match Django's APPEND_SLASH behavior
-					newMedicine,
-					{
-						headers: {
-							Authorization: `Bearer ${token}`, // Include the token in the Authorization header
-						},
-					},
-				);
+				await apiManager.post('/api/medicines/', newMedicine, {
+					headers: apiManager.getAuthHeaders(),
+				});
 				await fetchMedicines(1);
 			} catch (err) {
 				error.value = 'Failed to add medicine. Please try again later.';
@@ -266,20 +237,3 @@ export default {
 	},
 };
 </script>
-
-<style scoped>
-.medicine-card {
-	border: 1px solid #e5e7eb;
-	box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-	transition:
-		transform 0.18s ease,
-		box-shadow 0.18s ease,
-		border-color 0.18s ease;
-}
-
-.medicine-card:hover {
-	transform: translateY(-1px);
-	border-color: #fda4af;
-	box-shadow: 0 12px 24px rgba(244, 63, 94, 0.14);
-}
-</style>

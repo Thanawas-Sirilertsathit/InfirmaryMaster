@@ -128,9 +128,7 @@
 </template>
 
 <script>
-import axios from 'axios';
-
-const token = localStorage.getItem('authToken');
+import apiManager from '@/api/api_manager';
 
 export default {
 	name: 'StaffNavbar',
@@ -163,13 +161,10 @@ export default {
 		async fetchNotifications() {
 			this.isLoadingNotifications = true;
 			try {
-				const response = await axios.get(
-					'http://localhost:8000/api/reports/notifications/',
+				const response = await apiManager.get(
+					'/api/reports/notifications/',
 					{
-						headers: {
-							Accept: 'application/json',
-							Authorization: `Bearer ${token}`,
-						},
+						headers: apiManager.getAuthHeaders(),
 					},
 				);
 				this.notifications = Array.isArray(response.data?.results)
@@ -184,14 +179,11 @@ export default {
 		},
 		async markNotificationRead(notificationId) {
 			try {
-				await axios.post(
-					`http://localhost:8000/api/reports/notifications/${notificationId}/read/`,
+				await apiManager.post(
+					`/api/reports/notifications/${notificationId}/read/`,
 					{},
 					{
-						headers: {
-							Accept: 'application/json',
-							Authorization: `Bearer ${token}`,
-						},
+						headers: apiManager.getAuthHeaders(),
 					},
 				);
 				await this.fetchNotifications();
@@ -210,7 +202,7 @@ export default {
 
 			try {
 				if (refreshToken) {
-					await axios.post('http://localhost:8000/api/auth/logout/', {
+					await apiManager.post('/api/auth/logout/', {
 						refresh: refreshToken,
 					});
 				}

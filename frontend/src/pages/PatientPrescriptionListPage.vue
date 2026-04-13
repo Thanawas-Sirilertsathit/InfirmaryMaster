@@ -113,9 +113,7 @@
 </template>
 
 <script>
-import axios from 'axios';
-
-const token = localStorage.getItem('authToken');
+import apiManager from '@/api/api_manager';
 
 export default {
 	name: 'PatientPrescriptionListPage',
@@ -155,7 +153,7 @@ export default {
 			this.fetchPrescriptions(page);
 		},
 		createPrescription() {
-			this.$router.push('/prescription/create'); // Navigate to the create prescription page
+			this.$router.push('/prescription/create');
 		},
 		clearSearch() {
 			if (!this.searchQuery) {
@@ -210,17 +208,14 @@ export default {
 		},
 		async fetchPrescriptions(page = 1) {
 			try {
-				const response = await axios.get(
-					'http://localhost:8000/api/prescriptions/list/',
+				const response = await apiManager.get(
+					'/api/prescriptions/list/',
 					{
 						params: {
 							page,
 							search: this.searchQuery || undefined,
 						},
-						headers: {
-							Accept: 'application/json',
-							Authorization: `Bearer ${token}`,
-						},
+						headers: apiManager.getAuthHeaders(),
 					},
 				);
 				const results = Array.isArray(response.data?.results)
@@ -244,6 +239,4 @@ export default {
 };
 </script>
 
-<style scoped>
-/* Add any specific styles for the patient prescription list page here */
-</style>
+<style scoped></style>

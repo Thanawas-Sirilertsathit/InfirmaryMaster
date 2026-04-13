@@ -113,23 +113,21 @@
 </template>
 
 <script>
-import axios from 'axios';
-
-const token = localStorage.getItem('authToken'); // Retrieve token from local storage
+import apiManager from '@/api/api_manager';
 
 export default {
 	data() {
 		return {
 			patientFirstName: '',
 			patientLastName: '',
-			medicineBatches: [], // List of medicine batches
-			selectedMedicines: [], // List of selected medicines with amounts
-			doctorName: '', // Added doctor name field
-			notes: '', // Changed from instructions to notes
+			medicineBatches: [],
+			selectedMedicines: [],
+			doctorName: '',
+			notes: '',
 		};
 	},
 	created() {
-		this.fetchMedicineBatches(); // Fetch medicine batches on page load
+		this.fetchMedicineBatches();
 	},
 	methods: {
 		goBackToPrescriptions() {
@@ -137,13 +135,10 @@ export default {
 		},
 		async fetchMedicineBatches() {
 			try {
-				const response = await axios.get(
-					'http://localhost:8000/api/inventory/batches/list/',
+				const response = await apiManager.get(
+					'/api/inventory/batches/list/',
 					{
-						headers: {
-							Accept: 'application/json',
-							Authorization: `Bearer ${token}`,
-						},
+						headers: apiManager.getAuthHeaders(),
 					},
 				);
 				this.medicineBatches = response.data.results.map((batch) => ({
@@ -151,7 +146,7 @@ export default {
 					name: batch.medicine_name,
 					expirationDate: batch.expiration_date,
 					availableAmount: batch.quantity,
-					amountToAdd: 0, // Default amount to add
+					amountToAdd: 0,
 				}));
 			} catch (error) {
 				console.error('Error fetching medicine batches:', error);
@@ -166,17 +161,17 @@ export default {
 		},
 		addMedicine(batch) {
 			if (
-				batch.amountToAdd > 0 && // Ensure amount is greater than 0
-				batch.amountToAdd <= batch.availableAmount // Ensure amount does not exceed available stock
+				batch.amountToAdd > 0 &&
+				batch.amountToAdd <= batch.availableAmount
 			) {
 				this.selectedMedicines.push({
 					batchId: batch.id,
 					name: batch.name,
 					amount: batch.amountToAdd,
-					instruction: batch.instruction || '', // Ensure instruction is included
+					instruction: batch.instruction || '',
 				});
-				batch.availableAmount -= batch.amountToAdd; // Update available stock
-				batch.amountToAdd = 0; // Reset input field
+				batch.availableAmount -= batch.amountToAdd;
+				batch.amountToAdd = 0;
 			} else {
 				alert(
 					`Invalid amount specified. Maximum available: ${batch.availableAmount}`,
@@ -189,31 +184,17 @@ export default {
 					patient_first_name: this.patientFirstName,
 					patient_last_name: this.patientLastName,
 					items: this.selectedMedicines.map((med) => ({
-						batch_id: med.batchId, // Send batch ID instead of medicine ID
-						quantity: med.amount, // Send quantity
-						instruction: med.instruction || '', // Include instruction
+						batch_id: med.batchId,
+						quantity: med.amount,
+						instruction: med.instruction || '',
 					})),
-					notes: this.notes, // Include notes
+					notes: this.notes,
 				};
 
-				console.log('Selected Medicines:', this.selectedMedicines); // Debug log to inspect selected medicines
-				console.log('Payload being sent:', payload); // Debug log to inspect payload
-
-				const response = await axios.post(
-					'http://localhost:8000/api/prescriptions/', // Correct endpoint
-					payload,
-					{
-						headers: {
-							Accept: 'application/json',
-							Authorization: `Bearer ${token}`,
-						},
-					},
-				);
-				console.log(
-					'Prescription created successfully:',
-					response.data,
-				);
-				this.$router.push('/prescriptions'); // Redirect to prescriptions list
+				await apiManager.post('/api/prescriptions/', payload, {
+					headers: apiManager.getAuthHeaders(),
+				});
+				this.$router.push('/prescriptions');
 			} catch (error) {
 				console.error('Error creating prescription:', error);
 			}

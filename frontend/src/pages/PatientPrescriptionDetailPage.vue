@@ -153,9 +153,7 @@
 </template>
 
 <script>
-import axios from 'axios';
-
-const token = localStorage.getItem('authToken');
+import apiManager from '@/api/api_manager';
 
 export default {
 	name: 'PatientPrescriptionDetailPage',
@@ -218,17 +216,10 @@ export default {
 			this.loading = true;
 			this.error = '';
 			try {
-				if (!token) {
-					throw new Error('Authentication token is missing.');
-				}
-
-				const response = await axios.get(
-					`http://localhost:8000/api/prescriptions/${prescriptionId}/`,
+				const response = await apiManager.get(
+					`/api/prescriptions/${prescriptionId}/`,
 					{
-						headers: {
-							Accept: 'application/json',
-							Authorization: `Bearer ${token}`,
-						},
+						headers: apiManager.getAuthHeaders(),
 					},
 				);
 				this.prescription = response.data;
@@ -243,20 +234,3 @@ export default {
 	},
 };
 </script>
-
-<style scoped>
-.detail-card {
-	border: 1px solid #e5e7eb;
-	box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-	transition:
-		transform 0.18s ease,
-		box-shadow 0.18s ease,
-		border-color 0.18s ease;
-}
-
-.detail-card:hover {
-	transform: translateY(-1px);
-	border-color: #fda4af;
-	box-shadow: 0 12px 24px rgba(244, 63, 94, 0.14);
-}
-</style>

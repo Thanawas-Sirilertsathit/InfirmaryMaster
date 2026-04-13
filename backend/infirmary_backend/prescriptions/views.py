@@ -20,9 +20,9 @@ class PrescriptionCreateView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         try:
             serializer.is_valid(raise_exception=True)
-        except Exception as e:
-            logger.error('Validation error: %s', serializer.errors)  # Log validation errors
-            raise e
+        except Exception as exc:
+            logger.error('Validation error: %s', serializer.errors)
+            raise exc
         self.perform_create(serializer)
         data = PrescriptionSerializer(serializer.instance, context=self.get_serializer_context()).data
         headers = self.get_success_headers(data)
@@ -73,7 +73,6 @@ class PatientPrescriptionsView(generics.ListAPIView):
     def get_queryset(self):
         patient_id = self.kwargs['patient_id']
         if self.request.user.is_patient:
-            # Patients can only see their own prescriptions
             if not hasattr(self.request.user, 'patient_profile') or self.request.user.patient_profile.id != patient_id:
                 return Prescription.objects.none()
         return Prescription.objects.filter(patient_id=patient_id)

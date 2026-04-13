@@ -1,3 +1,64 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.inventory-card,
+.medicine-card,
+.detail-card {
+	border: 1px solid #e5e7eb;
+	box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+	transition:
+		transform 0.18s ease,
+		box-shadow 0.18s ease,
+		border-color 0.18s ease;
+}
+
+.inventory-card:hover,
+.medicine-card:hover,
+.detail-card:hover,
+.unauthorized-card:hover,
+.not-found-card:hover,
+.landing-copy-block:hover {
+	transform: translateY(-1px);
+	border-color: #fda4af;
+	box-shadow: 0 12px 24px rgba(244, 63, 94, 0.14);
+}
+
+.unauthorized-card,
+.not-found-card,
+.landing-copy-block {
+	transition:
+		transform 0.18s ease,
+		box-shadow 0.18s ease,
+		border-color 0.18s ease;
+}
+
+.landing-copy-block {
+	padding: 2rem;
+	border: 1px solid #e5e7eb;
+	border-radius: 1.5rem;
+	background: rgba(255, 255, 255, 0.92);
+	box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.unauthorized-image {
+	max-width: min(100%, 16rem);
+	height: auto;
+	object-fit: contain;
+	border-radius: 1.25rem;
+}
+
+.landing-gif {
+	max-width: min(100%, 24rem);
+	height: auto;
+	object-fit: contain;
+	margin-bottom: 1rem;
+	border-radius: 1.25rem;
+}
+
+.not-found-image {
+	max-width: min(100%, 18rem);
+	height: auto;
+	object-fit: contain;
+	border-radius: 1.25rem;
+}
