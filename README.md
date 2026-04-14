@@ -15,7 +15,7 @@ This is a web application for managing and tracking medicine in infirmary effici
 
 ## How to install and run
 
-- [Installation Guide](INSTALLATION.md)
+- Follow the guide in [Installation Guide](INSTALLATION.md) step by step to make it run via docker.
 
 ## System architecture (Hybrid between layer and service-based architecture)
 
