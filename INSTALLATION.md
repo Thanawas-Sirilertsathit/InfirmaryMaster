@@ -30,3 +30,9 @@ docker-compose up --build
 ```bash
 docker compose exec -T db mysql -uinfirmary_user -p1234 infirmary_db -e "UPDATE users_user SET role='admin', verified=1, is_staff=1, is_superuser=1 WHERE username='Admin'; SELECT id, username, first_name, last_name, email, role, verified, is_staff, is_superuser FROM users_user WHERE username='Admin';"
 ```
+
+5. How to stop the application
+
+```bash
+docker-compose down
+```
