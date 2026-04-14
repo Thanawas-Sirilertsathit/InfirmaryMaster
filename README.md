@@ -12,6 +12,8 @@ This is a web application for managing and tracking medicine in infirmary effici
 
 - Backend is powered by Django Python with REST framework.
 - Frontend is powered by Vue JS with Tailwind along with DaisyUI.
+- Database is MySQL as a relational database.
+- Containerization is Docker for easy deployment.
 
 ## How to install and run
 
