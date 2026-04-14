@@ -23,7 +23,7 @@ docker-compose up --build
 3. Access the web applications
 
 - frontend at http://localhost:80
-- backend at http://localhost:8000
+- backend at http://localhost:8000 where swagger is available at http://localhost:8000/api/docs/swagger/
 
 4. In case you need admin user to verify the staff users, create one user by registering as patient whose username is Admin. After that running this command in the terminal.
 
