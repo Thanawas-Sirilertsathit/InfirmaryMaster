@@ -1,6 +1,6 @@
 # Infirmary Master
 
-This is a web application for managing and tracking medicine in infirmary efficiently.
+This project aims to erase the problem that patients get defect medicine or the infirmary has no such medicine to provide to the patients. Therefore, Infirmary Master is a solution to this problem by tracking medicine with prescription and stock management systems. Moreover, we offer the alert notification when the medicine is less than the criteria level that we have set, when the medicine is near expiration date (30 days) and when the medicine has completely run out.
 
 ## User roles
 
