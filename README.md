@@ -19,7 +19,7 @@ This project aims to erase the problem that patients get defect medicine or the 
 
 - Follow the guide in [Installation Guide](INSTALLATION.md) step by step to make it run via docker.
 
-## System architecture (Hybrid between layer and service-based architecture)
+## System architecture (Service-based architecture)
 
 1. Backend has been divided into 6 services which each of them has its own responsibility according to service-based architecture.
 
