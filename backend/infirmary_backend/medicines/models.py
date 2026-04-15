@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Medicine(models.Model):
-    category = models.CharField(max_length=128)  # Changed to CharField
+    category = models.CharField(max_length=128)
     name = models.CharField(max_length=128)
     dosage = models.CharField(max_length=128)
     description = models.TextField(blank=True)
